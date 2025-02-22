@@ -7,5 +7,6 @@ export default defineConfig({
   base:'/',
   server: {
     port: 3000, // 👈 Set the port to 3000
+    historyApiFallback: true, 
   }
 })

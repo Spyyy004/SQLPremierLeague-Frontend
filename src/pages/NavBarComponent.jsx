@@ -32,7 +32,7 @@ const LogoImage = styled.img`
 export default function Navbar() {
   return (
     <NavbarContainer>
-      <Link to="/challenges">
+      <Link to="/">
       <LogoImage src={logo} alt="" /></Link>
       <Link to="/profile">
         <ProfileButton>Profile</ProfileButton>

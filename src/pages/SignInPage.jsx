@@ -296,7 +296,7 @@ export default function SignInPage() {
 
   
       // Step 4: Navigate to challenges page
-      navigate("/challenges");
+      navigate("/");
   
     } catch (err) {
       setError(err.message);
