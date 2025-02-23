@@ -68,6 +68,9 @@ export default function Navbar() {
         <img src="/sqlLogo.webp" alt="SQL Premier League" height="40" />
       </Link>
 
+      <Link to="/profile">
+        <ProfileButton>Profile</ProfileButton>
+      </Link>        
       <MenuButton onClick={() => setMenuOpen(!menuOpen)}>
         {menuOpen ? <X /> : <Menu />}
       </MenuButton>
