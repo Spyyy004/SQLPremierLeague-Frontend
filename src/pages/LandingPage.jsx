@@ -96,6 +96,18 @@ export default function LandingPage() {
       <Subtitle>SQL Challenges with a Cricketing Twist!</Subtitle>
 
       <StartButton to="/challenges">Start Solving</StartButton>
+      <a
+  href="https://www.producthunt.com/posts/sql-premier-league?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-sql-premier-league"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  <img
+    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=908056&theme=dark&t=1740323657621"
+    alt="SQL Premier League - Master SQL with IPL Cricket Data | Product Hunt"
+    style={{ width: "250px", height: "54px", margin: "50px" }} // ✅ JSX style object
+  />
+</a>
+
     </Container>
   );
 }
