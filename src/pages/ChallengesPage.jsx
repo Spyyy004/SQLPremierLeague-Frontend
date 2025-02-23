@@ -39,10 +39,11 @@ const PageContainer = styled.div`
   color: #e1e2e5;
   padding: 2rem;
   
-  @media (max-width: 768px) {
+  @media (max-width: 768px) {  /* ✅ Mobile Support */
     padding: 1rem;
   }
 `;
+
 
 const ContentWrapper = styled.div`
   max-width: 1400px;
