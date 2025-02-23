@@ -93,7 +93,7 @@ export default function LandingPage() {
       </Header>
       <LogoImage src="/sqlLogo.webp" alt="SQL Premier League Logo" />
       <Logo>SQL Premier League</Logo>
-      <Subtitle>Tackle real-world cricket-inspired challenges and level up your database skills with SQL Premier League.</Subtitle>
+      <Subtitle>SQL Challenges with a Cricketing Twist!</Subtitle>
 
       <StartButton to="/challenges">Start Solving</StartButton>
     </Container>
