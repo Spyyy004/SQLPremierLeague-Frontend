@@ -576,7 +576,7 @@ export default function ProblemPage() {
         setSuccess(data.is_correct);
         setError(null);
       } else {
-        setError(data);
+        setError({message : data?.error ?? "An error occured"});
         setSuccess(false);
       }
     } catch (error) {

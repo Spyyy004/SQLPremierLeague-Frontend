@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 import styled from "styled-components";
 import logo from "../assets/sqlLogo.webp";
 
