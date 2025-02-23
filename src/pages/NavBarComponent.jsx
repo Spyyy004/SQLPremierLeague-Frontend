@@ -77,7 +77,7 @@ export default function Navbar() {
 
       {menuOpen && (
         <MobileMenu>
-          <Link to="/">Challenges</Link>
+          <Link to="/challenges">Challenges</Link>
           <Link to="/profile">Profile</Link>
         </MobileMenu>
       )}

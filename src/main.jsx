@@ -7,6 +7,7 @@ import ProblemPage from "./pages/ProblemPage";
 import ProfilePage from "./pages/ProfilePage";
 import ReactGA from "react-ga4";
 import SignInPage from "./pages/SignInPage"; // ✅ Ensure this file exists
+import LandingPage from "./pages/LandingPage";
 
 ReactGA.initialize("G-3FQ42ZFRQN"); 
 
@@ -27,8 +28,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterWithAnalytics>
   <Routes>
+      <Route index element={<LandingPage />} /> {/* ✅ Default route */}
     <Route path="/" element={<Layout />}>
-      <Route index element={<ChallengesPage />} /> {/* ✅ Default route */}
+      <Route path="/challenges" element={<ChallengesPage/>}/>
       <Route path="solve/:id" element={<ProblemPage />} />
       <Route path="profile" element={<ProfilePage />} />
     </Route>

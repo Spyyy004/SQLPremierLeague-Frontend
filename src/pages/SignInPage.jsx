@@ -302,7 +302,7 @@ export default function SignInPage() {
 
   
       // Step 4: Navigate to challenges page
-      navigate("/");
+      navigate("/challenges");
   
     } catch (err) {
       setError(err.message);
