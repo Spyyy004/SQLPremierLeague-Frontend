@@ -532,7 +532,7 @@ export default function ProblemPage() {
 
   const handleLogin = () => {
     // Redirect to login/signup page
-    window.location.href = "/login";
+    window.location.href = "/signin";
   };
 
 
