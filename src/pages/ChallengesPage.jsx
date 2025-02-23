@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { Search, Filter, Grid, List, Clock, Award, Users, ChevronRight, ArrowUp, Loader } from "lucide-react";
 
