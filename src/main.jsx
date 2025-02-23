@@ -5,12 +5,27 @@ import Layout from "./pages/Layout";
 import ChallengesPage from "./pages/ChallengesPage";
 import ProblemPage from "./pages/ProblemPage";
 import ProfilePage from "./pages/ProfilePage";
-
+import ReactGA from "react-ga4";
 import SignInPage from "./pages/SignInPage"; // ✅ Ensure this file exists
+
+ReactGA.initialize("G-3FQ42ZFRQN"); 
+
+const trackPageView = (location) => {
+  ReactGA.send({ hitType: "pageview", page: location.pathname });
+};
+
+function RouterWithAnalytics({ children }) {
+  return (
+    <BrowserRouter basename="/">
+      {children}
+    </BrowserRouter>
+  );
+}
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter basename="/">
+    <RouterWithAnalytics>
   <Routes>
     <Route path="/" element={<Layout />}>
       <Route index element={<ChallengesPage />} /> {/* ✅ Default route */}
@@ -20,6 +35,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Route path="signin" element={<SignInPage />} /> {/* ✅ No extra "/" */}
     <Route path="*" element={<h1>404 - Page Not Found</h1>} /> {/* ✅ Catch-all */}
   </Routes>
-</BrowserRouter>
+  </RouterWithAnalytics>
   </React.StrictMode>
 );
