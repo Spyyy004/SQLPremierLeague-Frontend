@@ -10,15 +10,16 @@ import SignInPage from "./pages/SignInPage"; // ✅ Ensure this file exists
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route path="/" element={<ChallengesPage />} />
-          <Route path="/solve/:id" element={<ProblemPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-        </Route>
-          <Route path="/signin" element={<SignInPage />} /> {/* ✅ Ensure this exists */}
-      </Routes>
-    </BrowserRouter>
+    <BrowserRouter basename="/">
+  <Routes>
+    <Route path="/" element={<Layout />}>
+      <Route index element={<ChallengesPage />} /> {/* ✅ Default route */}
+      <Route path="solve/:id" element={<ProblemPage />} />
+      <Route path="profile" element={<ProfilePage />} />
+    </Route>
+    <Route path="signin" element={<SignInPage />} /> {/* ✅ No extra "/" */}
+    <Route path="*" element={<h1>404 - Page Not Found</h1>} /> {/* ✅ Catch-all */}
+  </Routes>
+</BrowserRouter>
   </React.StrictMode>
 );
