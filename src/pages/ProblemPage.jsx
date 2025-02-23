@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import MonacoEditor from "@monaco-editor/react";
 import {AlertTriangle , LogIn,  CheckCircle, XCircle, ChevronDown, ChevronUp} from 'lucide-react';
+import ReactGA from "react-ga4";
 
 const SubmissionsContainer = styled.div`
   padding: 1rem;
@@ -424,6 +425,7 @@ export default function ProblemPage() {
     fetchCSRFToken();
     const savedQuery = localStorage.getItem(`query_${id}`);
     if (savedQuery) setUserCode(savedQuery);
+    
   }, [id]); // ✅ Runs every time id changes
 
 
@@ -459,14 +461,14 @@ export default function ProblemPage() {
       options.headers["X-CSRF-Token"] = csrfToken; 
     }
     let response = await fetch(url, options);
-    // if (response.status === 401) {
-    //   console.warn("Access token expired. Refreshing...");
+    if (response.status === 401) {
+      console.warn("Access token expired. Refreshing...");
   
-    //   const refreshSuccess = await refreshAccessToken();
-    //   if (!refreshSuccess) return null; // If refresh fails, log out the user
+      const refreshSuccess = await refreshAccessToken();
+      if (!refreshSuccess) return null; // If refresh fails, log out the user
   
-    //   response = await fetch(url, options); // Retry request after refreshing token
-    // }
+      response = await fetch(url, options); // Retry request after refreshing token
+    }
   
     return response;
   };
@@ -575,9 +577,28 @@ export default function ProblemPage() {
         });
         setSuccess(data.is_correct);
         setError(null);
+
+        ReactGA.event({
+          category: "User",
+          action: "Ran SQL Query",
+          label: `Problem ${id}`,
+        });
+  
+        // ✅ Track if the query was correct or incorrect
+        ReactGA.event({
+          category: "Problem Solving",
+          action: data.is_correct ? "Correct Submission" : "Incorrect Submission",
+          label: `Problem ${id}`,
+        });
+
       } else {
         setError({message : data?.error ?? "An error occured"});
         setSuccess(false);
+        ReactGA.event({
+          category: "Error",
+          action: "Query Failed",
+          label: `Problem ${id}`,
+        });
       }
     } catch (error) {
       setQueryResults(null);

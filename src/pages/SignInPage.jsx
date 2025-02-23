@@ -4,7 +4,7 @@ import { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
-
+import ReactGA from 'react-ga4';
 // Animations
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -251,6 +251,12 @@ export default function SignInPage() {
     const endpoint = isLogin ? "login" : "register";
   
     try {
+
+      ReactGA.event({
+        category: "Authentication",
+        action: isLogin ? "Login Attempt" : "Registration Attempt",
+        label: email, // Track the user’s email for debugging (consider hashing for privacy)
+      });
       // Step 1: Call Register/Login API
       const response = await fetch(`https://sqlpremierleague-backend.onrender.com/${endpoint}`, {
         method: "POST",
