@@ -64,7 +64,7 @@ export default function Navbar() {
 
   return (
     <NavbarContainer>
-      <Link to="/">
+      <Link to="/challenges">
         <img src="/sqlLogo.webp" alt="SQL Premier League" height="40" />
       </Link>
 

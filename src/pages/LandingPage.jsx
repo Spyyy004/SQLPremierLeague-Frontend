@@ -71,6 +71,11 @@ const StartButton = styled(Link)`
   }
 `;
 
+const LogoImage = styled.img`
+  height: 100px; /* Adjust size as needed */
+  margin-bottom: 1rem;
+`;
+
 export default function LandingPage() {
   return (
     <Container>
@@ -86,9 +91,9 @@ export default function LandingPage() {
           <Coffee size={16} /> Buy Me a Coffee
         </NavButton>
       </Header>
-
+      <LogoImage src="/sqlLogo.webp" alt="SQL Premier League Logo" />
       <Logo>SQL Premier League</Logo>
-      <Subtitle>Enhance your SQL skills with real-world challenges.</Subtitle>
+      <Subtitle>Tackle real-world cricket-inspired challenges and level up your database skills with SQL Premier League.</Subtitle>
 
       <StartButton to="/challenges">Start Solving</StartButton>
     </Container>
