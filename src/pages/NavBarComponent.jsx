@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Menu, X, User, Award } from "lucide-react";
+import { Menu, X, User, Award, BarChart2, LogIn } from "lucide-react";
 import styled from "styled-components";
 
 const NavbarContainer = styled.nav`
@@ -22,6 +22,23 @@ const RightContainer = styled.div`
   align-items: center;
   gap: 1.5rem; /* Adds space between XP and Profile Icon */
 `;
+
+const CloseButton = styled.button`
+  margin-top: 1rem;
+  padding: 0.6rem 1.2rem;
+  background: #ef4444;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: #dc2626;
+  }
+`;
+
 
 const XPContainer = styled.div`
   display: flex;
@@ -59,14 +76,58 @@ const MenuButton = styled.button`
     display: block;
   }
 `;
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  color: white;
+
+  &:hover {
+    color: #60a5fa;
+  }
+`;
+
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const Popup = styled.div`
+  background: #1e1e2e;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+`;
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [xp, setXP] = useState(0);
-
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const navigate = useNavigate();
   useEffect(() => {
     fetchXP();
+  
   }, []);
+
+  const handleLogin = () => {
+    // Redirect to login/signup page
+    window.location.href = "/signin";
+  };
+
+
+
 
   const fetchXP = async () => {
     try {
@@ -82,10 +143,20 @@ export default function Navbar() {
 
       if (!response.ok) throw new Error("Failed to fetch XP");
 
-      const data = await response.json();
+      const data = await response.json(); 
+      setIsLoggedIn(true);
       setXP(data.xp || 0);
     } catch (error) {
       console.error("Error fetching XP:", error);
+      setIsLoggedIn(false)
+    }
+  };
+
+  const handleLeaderboardClick = () => {
+    if (!isLoggedIn) {
+      setShowLoginPopup(true);
+    } else {
+      navigate("/leaderboard");
     }
   };
 
@@ -100,6 +171,9 @@ export default function Navbar() {
 
       {/* Right Section: XP & Profile Icon */}
       <RightContainer>
+      <IconButton onClick={handleLeaderboardClick}>
+            <BarChart2 size={28} />
+          </IconButton>
         <XPContainer>
           <Award size={20} /> {xp} XP
         </XPContainer>
@@ -111,6 +185,17 @@ export default function Navbar() {
       <MenuButton onClick={() => setMenuOpen(!menuOpen)}>
         {menuOpen ? <X /> : <Menu />}
       </MenuButton>
+      {showLoginPopup && (
+  <PopupOverlay>
+    <Popup>
+      <LogIn size={40} color="#60a5fa" />
+      <h3 style={{ color: "#fff", marginBottom: "1rem" }}>Login Required</h3>
+      <p style={{ color: "#bbb" }}>You need to log in to see the leaderboard.</p>
+      <CloseButton onClick={handleLogin}>Go to Login</CloseButton>
+    </Popup>
+  </PopupOverlay>
+)}
     </NavbarContainer>
+    
   );
 }

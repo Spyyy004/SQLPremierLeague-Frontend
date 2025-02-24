@@ -483,7 +483,7 @@ const [questionType, setQuestionType] = useState("");
       return true; // ✅ Successfully refreshed token
     } catch (error) {
       console.error("Refresh token failed. Logging out.", error);
-      window.location.href = "/signin"; // Redirect to login
+      // window.location.href = "/signin"; // Redirect to login
       return false;
     }
   };
@@ -597,21 +597,23 @@ const [questionType, setQuestionType] = useState("");
       }
 
       if (isSubmit) {
-
-
-        // Check if user is logged in before submitting
-        const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/protected`, {
-          method: "GET",
-          credentials: "include",
-        });
-  
-        if (!response.ok) {
-          // If not authenticated, show login popup
-          setShowLoginPopup(true);
-          return;
+        try{
+          const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/protected`, {
+            method: "GET",
+            credentials: "include",
+          });
+    
+          if (!response.ok) {
+            // If not authenticated, show login popup
+            setShowLoginPopup(true);
+            return;
+          }
         }
+        catch{
+          setShowLoginPopup(true)
+        }
+        // Check if user is logged in before submitting
       }
-  
       setQueryResults(null);
       setError(null);
       setIsLoading(true);

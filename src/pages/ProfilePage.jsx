@@ -196,10 +196,7 @@ export default function ProfilePage() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) {
-      navigate("/signin");
-      return;
-    }
+   
 
     const fetchProfile = async () => {
       try {
@@ -216,6 +213,7 @@ export default function ProfilePage() {
         );
 
         if (!response.ok) {
+          navigate('/signin')
           throw new Error("Failed to fetch profile");
         }
 
@@ -225,6 +223,7 @@ export default function ProfilePage() {
       } catch (error) {
         console.error("Error fetching profile:", error);
         setError(error.message);
+        navigate('/signin')
         localStorage.removeItem("token");
       } finally {
         setLoading(false);
