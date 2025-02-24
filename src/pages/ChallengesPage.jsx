@@ -533,9 +533,9 @@ export default function ChallengesPage() {
       easy: easyChallenges.length,
       medium: mediumChallenges.length,
       hard: hardChallenges.length,
-      easySubmissions: easyChallenges.reduce((sum, c) => sum + (c.submissions || 5), 0),
-      mediumSubmissions: mediumChallenges.reduce((sum, c) => sum + (c.submissions || 3), 0),
-      hardSubmissions: hardChallenges.reduce((sum, c) => sum + (c.submissions || 2), 0)
+      easySubmissions: easyChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0),
+      mediumSubmissions: mediumChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0),
+      hardSubmissions: hardChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0)
     };
   }, [challenges]);
   

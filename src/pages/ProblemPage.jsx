@@ -456,6 +456,8 @@ export default function ProblemPage() {
   const [error, setError] = useState(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [xpGained, setXpGained] = useState(0);
+const [questionType, setQuestionType] = useState(""); 
   const navigate = useNavigate()
   useEffect(() => {
     fetchProblem();
@@ -477,7 +479,6 @@ export default function ProblemPage() {
       });
   
       if (!response.ok) throw new Error("Failed to refresh token");
-  
       return true; // ✅ Successfully refreshed token
     } catch (error) {
       console.error("Refresh token failed. Logging out.", error);
@@ -522,8 +523,9 @@ export default function ProblemPage() {
       const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/problem/${id}`);
   
       if (!response || !response.ok) throw new Error("Failed to fetch problem");
-  
+      
       const data = await response.json();
+      setQuestionType(data?.problem?.type)
       setProblem(data.problem);
       setTables(data.tables);
     } catch (error) {
@@ -625,12 +627,19 @@ export default function ProblemPage() {
   
       const data = await response.json();
   
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         setQueryResults({
           user_query_result: data.user_query_result || [],
           correct_query_result: data.correct_query_result || [],
           message: "Success",
         });
+
+      let xp = 0;
+      if (questionType === "easy") xp = 50;
+      else if (questionType === "medium") xp = 100;
+      else if (questionType === "hard") xp = 200;
+
+      setXpGained(xp);
         setSuccess(data.is_correct);
         setError(null);
 
@@ -869,20 +878,21 @@ export default function ProblemPage() {
         />
       )}
 
-      {showSuccessPopup && (
-        <PopupOverlay>
-          <SuccessPopup>
-            <AlertTriangle size={48} color="#22c55e" />
-            <CelebrationTitle>Congratulations! 🎉</CelebrationTitle>
-            <CelebrationText>
-              Great job solving this challenge! Ready to tackle the next one?
-            </CelebrationText>
-            <NextChallengeButton onClick={goToRandomQuestion}>
-              Try Next Challenge
-            </NextChallengeButton>
-          </SuccessPopup>
-        </PopupOverlay>
-      )}
+{showSuccessPopup && (
+  <PopupOverlay>
+    <SuccessPopup>
+      <AlertTriangle size={48} color="#22c55e" />
+      <CelebrationTitle>Congratulations! 🎉</CelebrationTitle>
+      <CelebrationText>
+        Great job solving this challenge! You earned <strong>{xpGained} XP</strong>! 💪
+      </CelebrationText>
+      <NextChallengeButton onClick={goToRandomQuestion}>
+        Try Next Challenge
+      </NextChallengeButton>
+    </SuccessPopup>
+  </PopupOverlay>
+)}
+
     </PageContainer>
   );
 }
