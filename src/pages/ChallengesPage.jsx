@@ -523,12 +523,22 @@ export default function ChallengesPage() {
     }
   }, [challenges, difficulty, searchQuery, sortBy]);
 
-  const stats = useMemo(() => ({
-    total: challenges.length,
-    easy: challenges.filter(c => c.type === 'easy').length,
-    medium: challenges.filter(c => c.type === 'medium').length,
-    hard: challenges.filter(c => c.type === 'hard').length
-  }), [challenges]);
+  const stats = useMemo(() => {
+    const easyChallenges = challenges.filter(c => c.type === 'easy');
+    const mediumChallenges = challenges.filter(c => c.type === 'medium');
+    const hardChallenges = challenges.filter(c => c.type === 'hard');
+    
+    return {
+      total: challenges.length,
+      easy: easyChallenges.length,
+      medium: mediumChallenges.length,
+      hard: hardChallenges.length,
+      easySubmissions: easyChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0),
+      mediumSubmissions: mediumChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0),
+      hardSubmissions: hardChallenges.reduce((sum, c) => sum + (c.submissions || 0), 0)
+    };
+  }, [challenges]);
+  
 
   if (error) {
     return (
@@ -567,7 +577,7 @@ export default function ChallengesPage() {
               <StatValue>{stats.easy}</StatValue>
               <MetadataItem>
                 <Award size={16} />
-                46 Submissions
+                {stats.easySubmissions} Submissions
               </MetadataItem>
             </StatCard>
             <StatCard>
@@ -575,7 +585,7 @@ export default function ChallengesPage() {
               <StatValue>{stats.medium}</StatValue>
               <MetadataItem>
                 <Award size={16} />
-                20 Submissions
+                {stats.mediumSubmissions} Submissions
               </MetadataItem>
             </StatCard>
             <StatCard>
@@ -583,7 +593,7 @@ export default function ChallengesPage() {
               <StatValue>{stats.hard}</StatValue>
               <MetadataItem>
                 <Award size={16} />
-                31 Submissions
+                {stats.hardSubmissions} Submissions
               </MetadataItem>
             </StatCard>
           </StatsGrid>
