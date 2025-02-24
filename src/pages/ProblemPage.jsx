@@ -456,6 +456,7 @@ export default function ProblemPage() {
   const [error, setError] = useState(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [isRepeatSubmission, setIsRepeatSubmission] = useState(true);
   const [xpGained, setXpGained] = useState(0);
 const [questionType, setQuestionType] = useState(""); 
   const navigate = useNavigate()
@@ -626,14 +627,14 @@ const [questionType, setQuestionType] = useState("");
       );
   
       const data = await response.json();
-  
+      
       if (response.status === 201 || response.status === 200) {
         setQueryResults({
           user_query_result: data.user_query_result || [],
           correct_query_result: data.correct_query_result || [],
           message: "Success",
         });
-
+      setIsRepeatSubmission(data?.is_repeat)
       let xp = 0;
       if (questionType === "easy") xp = 50;
       else if (questionType === "medium") xp = 100;
@@ -878,7 +879,7 @@ const [questionType, setQuestionType] = useState("");
         />
       )}
 
-{showSuccessPopup && (
+{showSuccessPopup && !isRepeatSubmission && (
   <PopupOverlay>
     <SuccessPopup>
       <AlertTriangle size={48} color="#22c55e" />
