@@ -10,7 +10,7 @@ const PageContainer = styled.div`
 `;
 
 export default function Layout() {
-    console.log("YESS HEEEE")
+
   return (
     <PageContainer>
       <Navbar />

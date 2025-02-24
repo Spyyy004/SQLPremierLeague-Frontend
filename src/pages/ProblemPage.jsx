@@ -2,8 +2,9 @@
 
 import React from "react"; 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import ReactConfetti from 'react-confetti';
 import MonacoEditor from "@monaco-editor/react";
 import {AlertTriangle , LogIn,  CheckCircle, XCircle, ChevronDown, ChevronUp} from 'lucide-react';
 import ReactGA from "react-ga4";
@@ -348,6 +349,40 @@ const CloseButton = styled.button`
 `;
 
 
+const SuccessPopup = styled(Popup)`
+  background: #1e1e2e;
+  padding: 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+`;
+
+const CelebrationTitle = styled.h2`
+  color: #22c55e;
+  font-size: 1.5rem;
+  margin: 1rem 0;
+`;
+
+const CelebrationText = styled.p`
+  color: #bbb;
+  margin-bottom: 1.5rem;
+`;
+
+const NextChallengeButton = styled(Button)`
+  background: #22c55e;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto;
+
+  &:hover {
+    background: #16a34a;
+  }
+`;
+
 
  function SubmissionsTab({ submissions }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -405,7 +440,8 @@ export default function ProblemPage() {
   const { id } = useParams();
   
   const storedQuery = localStorage.getItem(`query_${id}`) || "-- Write your SQL query here --";
-  
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [problem, setProblem] = useState(null);
   const [tables, setTables] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
@@ -418,7 +454,7 @@ export default function ProblemPage() {
   const [error, setError] = useState(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
-
+  const navigate = useNavigate()
   useEffect(() => {
     fetchProblem();
     fetchSubmissions();
@@ -452,7 +488,6 @@ export default function ProblemPage() {
   const fetchWithAuth = async (url, options = {}) => {
     
     const csrfToken = localStorage.getItem("csrf_token"); // Get CSRF token from localStorage
-    console.log(csrfToken,"LALLAA")
     if (!options.headers) {
       options.headers = {};
     }
@@ -555,7 +590,7 @@ export default function ProblemPage() {
           }
         }
       }
-      
+
       if (isSubmit) {
 
 
@@ -610,6 +645,13 @@ export default function ProblemPage() {
           label: `Problem ${id}`,
         });
 
+        if (data.is_correct && isSubmit) {
+          setShowConfetti(true);
+          setShowSuccessPopup(true);
+          setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds
+        }
+
+
       } else {
         setError({message : data?.error ?? "An error occured"});
         setSuccess(false);
@@ -628,6 +670,16 @@ export default function ProblemPage() {
     }
   };
   
+  const goToRandomQuestion = async () => {
+    try {
+      
+      
+        navigate(`/challenges/`);
+      
+    } catch (error) {
+      console.error('Error fetching random question:', error);
+    }
+  };
   
   const renderResultTable = (data, title) => {
     if (!data || data.length === 0) return null;
@@ -804,6 +856,31 @@ export default function ProblemPage() {
     </Popup>
   </PopupOverlay>
 )}
+
+{showConfetti && (
+        <ReactConfetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          recycle={false}
+          numberOfPieces={200}
+          gravity={0.3}
+        />
+      )}
+
+      {showSuccessPopup && (
+        <PopupOverlay>
+          <SuccessPopup>
+            <AlertTriangle size={48} color="#22c55e" />
+            <CelebrationTitle>Congratulations! 🎉</CelebrationTitle>
+            <CelebrationText>
+              Great job solving this challenge! Ready to tackle the next one?
+            </CelebrationText>
+            <NextChallengeButton onClick={goToRandomQuestion}>
+              Try Next Challenge
+            </NextChallengeButton>
+          </SuccessPopup>
+        </PopupOverlay>
+      )}
     </PageContainer>
   );
 }
