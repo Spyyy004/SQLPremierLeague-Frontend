@@ -303,6 +303,10 @@ export default function ProfilePage() {
             <StatValue>{user.unique_questions_solved}</StatValue>
             <StatLabel>Questions Solved</StatLabel>
           </StatCard>
+          <StatCard>
+  <StatValue>{user.xp}</StatValue>
+  <StatLabel>XP</StatLabel>
+</StatCard>
         </StatsGrid>
 
         <InfoSection>
