@@ -539,7 +539,26 @@ export default function ProblemPage() {
 
   const handleRun = async (isSubmit = false) => {
     try {
+
+      const allowedTables = ["deliveries", "matches"];
+      const lowerCaseQuery = userCode.toLowerCase();
+  
+      // Check if the query contains only allowed tables
+      const queryTables = lowerCaseQuery.match(/from\s+(\w+)/gi);
+      if (queryTables) {
+        for (const match of queryTables) {
+          const tableName = match.split(" ")[1].trim();
+          if (!allowedTables.includes(tableName)) {
+            setError({ message: "Incorrect table query" });
+            setSuccess(false);
+            return;
+          }
+        }
+      }
+      
       if (isSubmit) {
+
+
         // Check if user is logged in before submitting
         const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/protected`, {
           method: "GET",
