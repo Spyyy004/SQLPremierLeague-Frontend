@@ -233,17 +233,22 @@ export default function ProfilePage() {
     fetchProfile();
   }, [token, navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshtoken");
-    document.cookie.split(";").forEach(cookie => {
-        document.cookie = cookie
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
-    });
-    navigate("/signin");
+  const handleLogout = async () => {
+    try {
+      await fetch("https://sqlpremierleague-backend.onrender.com/logout", {
+        method: "POST",
+        credentials: "include", // Ensure cookies are sent and received
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      // Clear any local state or localStorage items if needed
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshtoken");
+      localStorage.removeItem("csrf_token");
+      window.location.href = "/signin";
+    }
   };
-
   if (loading) {
     return (
       <PageContainer>
