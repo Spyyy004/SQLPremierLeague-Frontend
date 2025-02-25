@@ -95,12 +95,15 @@ const RightPanel = styled.div`
   display: flex;
   flex-direction: column;
   background: #282a36;
+  height: calc(100vh - 10%);
+  position: relative; /* Establish a positioning context for sticky children */
 `;
+
 
 const Tabs = styled.div`
   display: flex;
   padding: 0.5rem 1rem;
-  background: #282a36;
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 `;
 

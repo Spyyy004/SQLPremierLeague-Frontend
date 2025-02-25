@@ -13,6 +13,7 @@
     "@monaco-editor/react": "^4.7.0",
     "lucide-react": "^0.475.0",
     "react": "^19.0.0",
+    "react-confetti": "^6.2.3",
     "react-dom": "^19.0.0",
     "react-ga4": "^2.1.0",
     "react-router-dom": "^7.1.5",

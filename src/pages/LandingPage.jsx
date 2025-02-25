@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { User, Share, Star, Coffee } from "lucide-react";
-
+import TerminalEffect from "./TerminalEffect";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -93,8 +93,8 @@ export default function LandingPage() {
       </Header>
       <LogoImage src="/sqlLogo.webp" alt="SQL Premier League Logo" />
       <Logo>SQL Premier League</Logo>
-      <Subtitle>SQL Challenges with a Cricketing Twist!</Subtitle>
-
+      <Subtitle>SQL Challenges with a Sporty Twist!</Subtitle>
+      <TerminalEffect/>
       <StartButton to="/challenges">Start Solving</StartButton>
       <a
   href="https://www.producthunt.com/posts/sql-premier-league?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-sql-premier-league"
