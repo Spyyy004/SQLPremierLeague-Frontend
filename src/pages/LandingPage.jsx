@@ -103,7 +103,7 @@ export default function LandingPage() {
 >
   <img
     src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=908056&theme=dark&t=1740323657621"
-    alt="SQL Premier League - Master SQL with IPL Cricket Data | Product Hunt"
+    alt="SQL Premier League - Master SQL with Sports Data | Product Hunt"
     style={{ width: "250px", height: "54px", margin: "50px" }} // ✅ JSX style object
   />
 </a>

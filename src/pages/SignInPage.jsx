@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import styled, { keyframes } from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
 import ReactGA from 'react-ga4';
 // Animations
@@ -239,7 +239,7 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -302,7 +302,8 @@ export default function SignInPage() {
 
   
       // Step 4: Navigate to challenges page
-      navigate("/challenges");
+      const redirectTo = location.state?.from || "/challenges";
+      navigate(redirectTo);
   
     } catch (err) {
       setError(err.message);

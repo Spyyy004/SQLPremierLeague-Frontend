@@ -575,7 +575,8 @@ const [questionType, setQuestionType] = useState("");
 
   const handleLogin = () => {
     // Redirect to login/signup page
-    window.location.href = "/signin";
+    
+    navigate("/signin", { state: { from: location.pathname } });
   };
 
 
@@ -670,7 +671,7 @@ const [questionType, setQuestionType] = useState("");
 
 
       } else {
-        setError({message : data?.error ?? "An error occured"});
+        setError({message : data?.details ?? "An error occured"});
         setSuccess(false);
         ReactGA.event({
           category: "Error",
