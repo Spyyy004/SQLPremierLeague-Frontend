@@ -72,10 +72,16 @@ const TerminalEffect = () => {
 
   // SQL commands to cycle through
   const sqlCommands = [
-    "SELECT player_name, goals FROM players ORDER BY goals DESC LIMIT 10;",
-    "UPDATE teams SET points = points + 3 WHERE team_name = 'Liverpool';",
-    "SELECT team_name, COUNT(*) AS wins FROM matches WHERE is_winner = true GROUP BY team_name;",
-    "WITH top_scorers AS (SELECT player_id, SUM(goals) AS total FROM match_stats GROUP BY player_id) SELECT p.name, t.total FROM players p JOIN top_scorers t ON p.id = t.player_id ORDER BY t.total DESC LIMIT 5;"
+    // Football query: Get top 10 football players by goals
+    "SELECT player_name, goals FROM football_players ORDER BY goals DESC LIMIT 10;",
+    
+    // Basketball query: Update wins for a specific basketball team
+    "UPDATE basketball_teams SET wins = wins + 1 WHERE team_name = 'Los Angeles Lakers';",
+    
+    // Cricket query: Count wins for each cricket team
+    "SELECT team_name, COUNT(*) AS wins FROM cricket_matches WHERE is_winner = true GROUP BY team_name;",
+    
+    // Baseball query: Get top 5 hitters by total hits using a CTE
   ];
 
   useEffect(() => {

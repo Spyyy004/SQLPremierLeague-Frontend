@@ -1,5 +1,5 @@
 "use client"
-
+import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { Search, Filter, Grid, List, Clock, Award, Users, ChevronRight, ArrowUp, Loader } from "lucide-react";
@@ -370,6 +370,8 @@ export default function ChallengesPage() {
   const [view, setView] = useState("grid");
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [sortBy, setSortBy] = useState("difficulty");
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category"); 
 
   useEffect(() => {
     fetchChallenges();
@@ -480,17 +482,21 @@ export default function ChallengesPage() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetchWithAuth(
-        "https://sqlpremierleague-backend.onrender.com/challenges",
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
+
+      // Get category from URL parameters
+
+
+      // Construct API URL with category as a query parameter
+      const apiUrl = `https://sqlpremierleague-backend.onrender.com/challenges?category=${category}`;
+
+      const response = await fetchWithAuth(apiUrl, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
       if (!response.ok) throw new Error("Failed to fetch challenges");
-      
+
       const data = await response.json();
       setChallenges(data.challenges);
     } catch (error) {
@@ -500,6 +506,7 @@ export default function ChallengesPage() {
       setLoading(false);
     }
   };
+
 
   const filteredAndSortedChallenges = useMemo(() => {
     let filtered = challenges

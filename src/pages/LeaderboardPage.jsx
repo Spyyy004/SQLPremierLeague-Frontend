@@ -221,14 +221,15 @@ export default function LeaderboardPage() {
         },
         credentials: "include"
       });
-  
       if (response.status === 401) {
         navigate("/signin");
         return;
       }
   
-      if (!response.ok) throw new Error("Failed to fetch leaderboard");
-  
+      if (!response.ok) {
+        navigate("/signin");
+        throw new Error("Failed to fetch leaderboard");
+      }
       const data = await response.json();
       setLeaderboard(data.leaderboard);
       setUserRank(data.user_rank);

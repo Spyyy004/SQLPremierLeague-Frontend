@@ -584,7 +584,7 @@ const [questionType, setQuestionType] = useState("");
   const handleRun = async (isSubmit = false) => {
     try {
 
-      const allowedTables = ["deliveries", "matches"];
+      const allowedTables = ["deliveries", "matches", "epl_matches"];
       const lowerCaseQuery = userCode.toLowerCase();
   
       // Check if the query contains only allowed tables
@@ -690,10 +690,7 @@ const [questionType, setQuestionType] = useState("");
   
   const goToRandomQuestion = async () => {
     try {
-      
-      
-        navigate(`/challenges/`);
-      
+        navigate(`/challenges?category=${problem?.category}`);
     } catch (error) {
       console.error('Error fetching random question:', error);
     }

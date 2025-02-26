@@ -586,7 +586,7 @@ export default function LandingPage() {
           <TerminalEffect />
           
           <ButtonContainer>
-            <StartButton to="/challenges">
+            <StartButton to="/categories">
               Start Playing
             </StartButton>
          
