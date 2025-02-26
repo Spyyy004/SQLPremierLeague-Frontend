@@ -97,9 +97,9 @@ npm run lint  # Checks for code issues
 
 💬 Join the discussion on **Reddit, IndieHackers, and Discord**.  
 
-🔗 **Follow us on Twitter:** [@sqlpremierleague](https://twitter.com/sqlpremierleague)  
+🔗 **Follow us on Twitter:** [@sqlpremierleague](https://twitter.com/Iyush004)  
 
-📧 **Contact Us:** support@sqlpremierleague.com  
+📧 **Contact Us:** i.yush.004@gmail.com  
 
 ---
 
