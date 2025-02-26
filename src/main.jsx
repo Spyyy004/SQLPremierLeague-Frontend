@@ -9,6 +9,7 @@ import ReactGA from "react-ga4";
 import SignInPage from "./pages/SignInPage"; // ✅ Ensure this file exists
 import LandingPage from "./pages/LandingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import SportSelection from "./pages/SportsSelection";
 
 ReactGA.initialize("G-3FQ42ZFRQN"); 
 
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Route path="/challenges" element={<ChallengesPage/>}/>
       <Route path="solve/:id" element={<ProblemPage />} />
       <Route path="profile" element={<ProfilePage />} />
+      <Route path="/categories" element={<SportSelection/>}/>
       <Route path ="/leaderboard" element={<LeaderboardPage/>}/>
     </Route>
     <Route path="signin" element={<SignInPage />} /> {/* ✅ No extra "/" */}
