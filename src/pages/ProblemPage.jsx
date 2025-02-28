@@ -8,7 +8,8 @@ import ReactConfetti from 'react-confetti';
 import MonacoEditor from "@monaco-editor/react";
 import {AlertTriangle , LogIn,  CheckCircle, XCircle, ChevronDown, ChevronUp} from 'lucide-react';
 import ReactGA from "react-ga4";
-
+import Mixpanel
+ from "../utils/mixpanel";
 const SubmissionsContainer = styled.div`
   padding: 1rem;
   overflow-y: auto;
@@ -353,6 +354,13 @@ const CloseButton = styled.button`
   }
 `;
 
+const ExecutionTime = styled.p`
+  margin-top: 10px;
+  color: #10b981;
+  font-size: 0.9rem;
+  font-weight: 500;
+`;
+
 
 const SuccessPopup = styled(Popup)`
   background: #1e1e2e;
@@ -452,6 +460,8 @@ export default function ProblemPage() {
   const [activeTab, setActiveTab] = useState("description");
   const [userCode, setUserCode] = useState(storedQuery);
   const [output, setOutput] = useState("");
+  const [executionTime, setExecutionTime] = useState(null);
+  const [expectedExecutionTime, setExpectedExecutionTime] = useState(null);
   const [success, setSuccess] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -466,14 +476,18 @@ const [questionType, setQuestionType] = useState("");
   useEffect(() => {
     fetchProblem();
     fetchSubmissions();
-    fetchCSRFToken();
+    fetchCSRFToken(); 
+    
     const savedQuery = localStorage.getItem(`query_${id}`);
     if (savedQuery) setUserCode(savedQuery);
     
   }, [id]); // ✅ Runs every time id changes
 
 
-
+  const sendMixpanelEvent = (problem) => {
+    Mixpanel
+    .track('Problem Page Viewed', problem)
+  }
   const refreshAccessToken = async () => {
     try {
       const response = await fetch("https://sqlpremierleague-backend.onrender.com/refresh", {
@@ -532,6 +546,7 @@ const [questionType, setQuestionType] = useState("");
       setQuestionType(data?.problem?.type)
       setProblem(data.problem);
       setTables(data.tables);
+      sendMixpanelEvent(data?.problem);
     } catch (error) {
       console.error("Error fetching problem:", error);
     }
@@ -582,111 +597,157 @@ const [questionType, setQuestionType] = useState("");
 
 
   const handleRun = async (isSubmit = false) => {
-    try {
-
-      const allowedTables = ["deliveries", "matches", "epl_matches"];
-      const lowerCaseQuery = userCode.toLowerCase();
-  
-      // Check if the query contains only allowed tables
-      const queryTables = lowerCaseQuery.match(/from\s+(\w+)/gi);
-      if (queryTables) {
-        for (const match of queryTables) {
-          const tableName = match.split(" ")[1].trim();
-          if (!allowedTables.includes(tableName)) {
-            setError({ message: "Incorrect table query" });
-            setSuccess(false);
-            return;
-          }
-        }
-      }
-
-      if (isSubmit) {
-        try{
-          const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/protected`, {
-            method: "GET",
-            credentials: "include",
-          });
-    
-          if (!response.ok) {
-            // If not authenticated, show login popup
-            setShowLoginPopup(true);
-            return;
-          }
-        }
-        catch{
-          setShowLoginPopup(true)
-        }
-        // Check if user is logged in before submitting
-      }
-      setQueryResults(null);
-      setError(null);
-      setIsLoading(true);
-      const endpoint = isSubmit ? 'submit-answer' : 'run-answer';
-      const response = await fetchWithAuth(
-        `https://sqlpremierleague-backend.onrender.com/${endpoint}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json"},
-          body: JSON.stringify({ user_query: userCode, question_id: id, is_submit: isSubmit }),
-          credentials: "include",
-        }
-      );
-  
-      const data = await response.json();
-      
-      if (response.status === 201 || response.status === 200) {
-        setQueryResults({
-          user_query_result: data.user_query_result || [],
-          correct_query_result: data.correct_query_result || [],
-          message: "Success",
-        });
-      setIsRepeatSubmission(data?.is_repeat)
-      let xp = 0;
-      if (questionType === "easy") xp = 50;
-      else if (questionType === "medium") xp = 100;
-      else if (questionType === "hard") xp = 200;
-
-      setXpGained(xp);
-        setSuccess(data.is_correct);
-        setError(null);
-
-        ReactGA.event({
-          category: "User",
-          action: "Ran SQL Query",
-          label: `Problem ${id}`,
-        });
-  
-        // ✅ Track if the query was correct or incorrect
-        ReactGA.event({
-          category: "Problem Solving",
-          action: data.is_correct ? "Correct Submission" : "Incorrect Submission",
-          label: `Problem ${id}`,
-        });
-
-        if (data.is_correct && isSubmit) {
-          setShowConfetti(true);
-          setShowSuccessPopup(true);
-          setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds
-        }
-
-
-      } else {
-        setError({message : data?.details ?? "An error occured"});
+      try {
+        const defaultPlaceholder = "-- Write your SQL query here --";
+        const cleanedQuery = userCode.trim().replace(defaultPlaceholder, "").trim();
+        setExecutionTime(null);
+        setExpectedExecutionTime(null);
+      if (!cleanedQuery) {
+        setError({ message: "Please enter a valid SQL query before running." });
         setSuccess(false);
-        ReactGA.event({
-          category: "Error",
-          action: "Query Failed",
-          label: `Problem ${id}`,
-        });
+        return;
       }
-    } catch (error) {
-      setQueryResults(null);
-      setError({ message: "Error executing query." });
-      setSuccess(false);
-    } finally {
-      setIsLoading(false);
-    }
+
+        const allowedTables = ["deliveries", "matches", "epl_matches", "epl_statistics","f1_races","f1_constructor_standings","f1_constructors","f1_driver_standings","f1_drivers","f1_results","f1_circuits"];
+        const lowerCaseQuery = cleanedQuery.toLowerCase();
+        
+        // Check if the query contains only allowed tables
+        const queryTables = lowerCaseQuery.match(/from\s+(\w+)/gi);
+        if (queryTables) {
+          for (const match of queryTables) {
+            const tableName = match.split(" ")[1].trim();
+            if (!allowedTables.includes(tableName)) {
+              setError({ message: "Incorrect table query" });
+              setSuccess(false);
+  
+              // 🔹 Track Mixpanel Event: Incorrect Table Used
+              Mixpanel.track("Query Error - Incorrect Table", {
+                query: userCode,
+                table_used: tableName,
+                problem_id: id,
+              });
+  
+              return;
+            }
+          }
+        }
+  
+        if (isSubmit) {
+          try {
+            const response = await fetchWithAuth(`https://sqlpremierleague-backend.onrender.com/protected`, {
+              method: "GET",
+              credentials: "include",
+            });
+      
+            if (!response.ok) {
+              // If not authenticated, show login popup
+              setShowLoginPopup(true);
+              return;
+            }
+          } catch {
+            setShowLoginPopup(true);
+          }
+        }
+  
+        setQueryResults(null);
+        setError(null);
+        setIsLoading(true);
+        const endpoint = isSubmit ? 'submit-answer' : 'run-answer';
+        const response = await fetchWithAuth(
+          `https://sqlpremierleague-backend.onrender.com/${endpoint}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify({ user_query: cleanedQuery, question_id: id, is_submit: isSubmit }),
+            credentials: "include",
+          }
+        );
+  
+        const data = await response.json();
+        
+        if (response.status === 201 || response.status === 200) {
+          setQueryResults({
+            user_query_result: data.user_query_result || [],
+            correct_query_result: data.correct_query_result || [],
+            message: "Success",
+          });
+  
+          setIsRepeatSubmission(data?.is_repeat);
+          setExecutionTime(data?.user_execution_time || "N/A");
+          setExpectedExecutionTime(data?.correct_execution_time || "N/A");
+          let xp = 0;
+          if (questionType === "easy") xp = 50;
+          else if (questionType === "medium") xp = 100;
+          else if (questionType === "hard") xp = 200;
+  
+          setXpGained(xp);
+          setSuccess(data.is_correct);
+          setError(null);
+  
+          // 🔹 Mixpanel Event: Query Execution Success
+          Mixpanel.track("Query Executed", {
+            query: userCode,
+            is_submit: isSubmit,
+            problem_id: id,
+            category: questionType,
+            is_correct: data.is_correct,
+            xp_earned: xp,
+          });
+  
+          ReactGA.event({
+            category: "User",
+            action: "Ran SQL Query",
+            label: `Problem ${id}`,
+          });
+  
+          // ✅ Track if the query was correct or incorrect
+          ReactGA.event({
+            category: "Problem Solving",
+            action: data.is_correct ? "Correct Submission" : "Incorrect Submission",
+            label: `Problem ${id}`,
+          });
+  
+          if (data.is_correct && isSubmit) {
+            setShowConfetti(true);
+            setShowSuccessPopup(true);
+            setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds
+          }
+  
+        } else {
+          setError({ message: data?.details ?? "An error occurred" });
+          setSuccess(false);
+  
+          // 🔹 Mixpanel Event: Query Execution Failed
+          Mixpanel.track("Query Failed", {
+            query: userCode,
+            is_submit: isSubmit,
+            problem_id: id,
+            error_message: data?.details ?? "Unknown Error",
+          });
+  
+          ReactGA.event({
+            category: "Error",
+            action: "Query Failed",
+            label: `Problem ${id}`,
+          });
+        }
+      } catch (error) {
+        setQueryResults(null);
+        setError({ message: "Error executing query." });
+        setSuccess(false);
+  
+        // 🔹 Mixpanel Event: Unexpected Error
+        Mixpanel.track("Unexpected Query Error", {
+          query: userCode,
+          problem_id: id,
+          error_message: error.message,
+        });
+  
+      } finally {
+        setIsLoading(false);
+      }
   };
+  
   
   const goToRandomQuestion = async () => {
     try {
@@ -858,6 +919,11 @@ const [questionType, setQuestionType] = useState("");
           <ResultsContainer>
             {renderResultTable(queryResults.user_query_result, "Your Query Result")}
             {renderResultTable(queryResults.correct_query_result, "Expected Result")}
+            {executionTime !== null && (
+        <ExecutionTime>
+          ⏱️ Your Query: <strong>{executionTime} ms</strong> | Expected: <strong>{expectedExecutionTime} ms</strong>
+        </ExecutionTime>
+      )}
           </ResultsContainer>
         )}
       </RightPanel>

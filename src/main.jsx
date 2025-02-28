@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
@@ -10,14 +10,20 @@ import SignInPage from "./pages/SignInPage"; // ✅ Ensure this file exists
 import LandingPage from "./pages/LandingPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import SportSelection from "./pages/SportsSelection";
+import Mixpanel from "./utils/mixpanel";
 
 ReactGA.initialize("G-3FQ42ZFRQN"); 
 
 const trackPageView = (location) => {
-  ReactGA.send({ hitType: "pageview", page: location.pathname });
+  ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+
 };
 
 function RouterWithAnalytics({ children }) {
+  useEffect(()=>{
+    Mixpanel.track("Page Viewed", { page: window.location.pathname });
+    trackPageView();
+  })
   return (
     <BrowserRouter basename="/">
       {children}

@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Loader2, ArrowRight, User } from "lucide-react";
 import ReactGA from 'react-ga4';
+import Mixpanel from "../utils/mixpanel";
 // Animations
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -241,6 +242,7 @@ export default function SignInPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -251,12 +253,18 @@ export default function SignInPage() {
     const endpoint = isLogin ? "login" : "register";
   
     try {
-
+      // 🔹 Mixpanel Event: Authentication Attempt
+      Mixpanel.track("Authentication Attempt", {
+        type: isLogin ? "Login" : "Registration",
+        email,
+      });
+  
       ReactGA.event({
         category: "Authentication",
         action: isLogin ? "Login Attempt" : "Registration Attempt",
         label: email, // Track the user’s email for debugging (consider hashing for privacy)
       });
+  
       // Step 1: Call Register/Login API
       const response = await fetch(`https://sqlpremierleague-backend.onrender.com/${endpoint}`, {
         method: "POST",
@@ -265,7 +273,7 @@ export default function SignInPage() {
           isLogin ? { email, password } : { email, password, username: name }
         ),
         credentials: "include" // ✅ Ensures cookies (like HttpOnly JWT) are sent with the request
-      })
+      });
   
       const data = await response.json();
   
@@ -290,27 +298,39 @@ export default function SignInPage() {
   
         // Step 3: Store the token from the login response
         localStorage.setItem("token", loginData.access_token);
-        localStorage.setItem("refreshtoken",loginData.refresh_token)
-        localStorage.setItem("csrfToken",loginData.csrf_token);
+        localStorage.setItem("refreshtoken", loginData.refresh_token);
+        localStorage.setItem("csrfToken", loginData.csrf_token);
       } else {
         // Step 3: Store the token if it was a direct login
         localStorage.setItem("token", data.access_token);
-        localStorage.setItem("refreshtoken",data.refresh_token)
-        localStorage.setItem("csrfToken",data.csrf_token);
+        localStorage.setItem("refreshtoken", data.refresh_token);
+        localStorage.setItem("csrfToken", data.csrf_token);
       }
-
-
+  
+      // 🔹 Mixpanel Event: Successful Authentication
+      Mixpanel.identify(email);
+      Mixpanel.people.set({ email, login_type: isLogin ? "Login" : "Registration" });
+      Mixpanel.track(isLogin ? "User Logged In" : "User Registered", { email });
   
       // Step 4: Navigate to challenges page
-      const redirectTo = location.state?.from || "/challenges";
+      const redirectTo = location.state?.from || "/categories";
       navigate(redirectTo);
   
     } catch (err) {
       setError(err.message);
+  
+      // 🔹 Mixpanel Event: Authentication Failed
+      Mixpanel.track("Authentication Failed", {
+        type: isLogin ? "Login" : "Registration",
+        email,
+        error_message: err.message,
+      });
+  
     } finally {
       setLoading(false);
     }
   };
+  
   
   const resetForm = () => {
     setEmail("");

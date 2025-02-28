@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Menu, X, User, Award, BarChart2, LogIn } from "lucide-react";
 import styled from "styled-components";
+import Mixpanel from "../utils/mixpanel";
 
 const NavbarContainer = styled.nav`
   display: flex;
@@ -152,19 +153,37 @@ export default function Navbar() {
     }
   };
 
+
   const handleLeaderboardClick = () => {
+    // 🔹 Track Mixpanel Event: Leaderboard Attempt
+    Mixpanel.track("Leaderboard Clicked", {
+      is_logged_in: isLoggedIn,
+    });
+  
     if (!isLoggedIn) {
       setShowLoginPopup(true);
+  
+      // 🔹 Track Mixpanel Event: Prompted for Login
+      Mixpanel.track("Leaderboard Access Blocked", {
+        reason: "User Not Logged In",
+      });
+  
     } else {
       navigate("/leaderboard");
+  
+      // 🔹 Track Mixpanel Event: Successful Leaderboard Access
+      Mixpanel.track("Leaderboard Accessed", {
+        user: "Logged In",
+      });
     }
   };
+  
 
   return (
     <NavbarContainer>
       {/* Left Section: Logo */}
       <LeftContainer>
-        <Link to="/challenges">
+        <Link to="/categories">
           <img src="/sqlLogo.webp" alt="SQL Premier League" height="40" />
         </Link>
       </LeftContainer>

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { Lock, ArrowLeft, Loader } from "lucide-react";
+import styled, { keyframes } from "styled-components";
+import { Lock, ArrowLeft, Loader, AlertTriangle, Database } from "lucide-react";
+import ChallengeOfTheDay from "./ChallengeOfTheDay";
 
 // 🎨 Updated Theme Colors
 const primaryColor = "#282a36"; // Updated page background
 const accentColor = "#3b82f6"; // Brighter blue for action elements
 const textColor = "#f8fafc"; // Light text for better contrast
 const cardBgColor = "#1e1e2e"; // Darker background for sport cards
+const errorColor = "#ef4444"; // Red for error states
 
 // 🏆 Page Container with Updated Background
 const PageContainer = styled.div`
@@ -40,10 +42,15 @@ const BackButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
   
   &:hover {
     background: #2563eb;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `;
 
@@ -53,7 +60,7 @@ const PageTitle = styled.h1`
   margin-left: 1rem;
 `;
 
-// 🏆 Main Content Styling
+// � Main Content Styling
 const MainContent = styled.main`
   max-width: 1100px;
   width: 100%;
@@ -81,7 +88,7 @@ const SportCard = styled.div`
   align-items: center;
   cursor: ${({ available }) => (available ? "pointer" : "not-allowed")};
   transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: ${({ available }) => (available ? "0px 4px 10px rgba(0, 0, 0, 0.2)" : "none")};
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 
   ${({ available }) => available && `
     &:hover {
@@ -95,6 +102,11 @@ const SportIcon = styled.span`
   font-size: 3.5rem;
   display: block;
   margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+
+  ${SportCard}:hover & {
+    transform: scale(1.1);
+  }
 `;
 
 const SportName = styled.h3`
@@ -102,12 +114,19 @@ const SportName = styled.h3`
   font-weight: bold;
 `;
 
+// Improved consistent styling for question count
 const QuestionCount = styled.div`
   margin-top: 1rem;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  background: ${({ available }) => (available ? accentColor : "#4b5563")};
+  background: rgba(59, 130, 246, 0.2);
   font-weight: 500;
+  color: ${textColor};
+  transition: background 0.3s ease;
+
+  ${SportCard}:hover & {
+    background: rgba(59, 130, 246, 0.4);
+  }
 `;
 
 const CTAButton = styled.button`
@@ -120,10 +139,15 @@ const CTAButton = styled.button`
   border-radius: 8px;
   color: white;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s ease;
   
   &:hover {
     background: #2563eb;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
@@ -135,8 +159,13 @@ const LockedOverlay = styled.div`
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(2px);
   color: #d1d5db;
+  transition: opacity 0.3s ease;
+
+  ${SportCard}:hover & {
+    opacity: 0.9;
+  }
 `;
 
 const ComingSoonText = styled.span`
@@ -144,12 +173,15 @@ const ComingSoonText = styled.span`
   font-weight: bold;
 `;
 
-// 🏆 Loader for Loading State
-const LoadingContainer = styled.div`
+// 🏆 States: Loading, Empty, and Error
+const StateContainer = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 16rem;
+  text-align: center;
+  padding: 2rem;
 `;
 
 const SpinningLoader = styled(Loader)`
@@ -163,37 +195,79 @@ const SpinningLoader = styled(Loader)`
   }
 `;
 
+// New Empty State component
+const EmptyState = styled.div`
+  background: ${cardBgColor};
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+`;
+
+const EmptyStateIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+`;
+
+const EmptyStateTitle = styled.h3`
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+`;
+
+const EmptyStateMessage = styled.p`
+  font-size: 1.1rem;
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+`;
+
+// New Error State component
+const ErrorIcon = styled(AlertTriangle)`
+  color: ${errorColor};
+  margin-bottom: 1rem;
+`;
+
+const RefreshButton = styled(CTAButton)`
+  background: ${errorColor};
+  &:hover {
+    background: #dc2626;
+  }
+`;
+
 export default function SportSelection() {
   const navigate = useNavigate();
   const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchSports = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch("https://sqlpremierleague-backend.onrender.com/categories");
+      const data = await response.json();
+
+      const sportsData = [
+        { id: "EPL", name: "Premier League", icon: "⚽", available: true },
+        { id: "cricket", name: "IPL", icon: "🏏", available: true },
+        { id: "F1", name: "Formula 1", icon: "🏎️", available: true },
+        { id: "nfl", name: "NFL", icon: "🏈", available: false },
+        { id: "nba", name: "Basketball", icon: "🏀", available: false },
+      ].map((sport) => ({
+        ...sport,
+        questionCount: data.categories.find((c) => c.category === sport.id)?.question_count || 0
+      }));
+
+      setSports(sportsData);
+    } catch (err) {
+      console.error("Failed to load sports data:", err);
+      setError("Unable to load sports data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchSports = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("https://sqlpremierleague-backend.onrender.com/categories");
-        const data = await response.json();
-
-        const sportsData = [
-          { id: "EPL", name: "Premier League", icon: "⚽", available: true },
-          { id: "cricket", name: "Cricket", icon: "🏏", available: true },
-          { id: "nfl", name: "NFL", icon: "🏈", available: false },
-          { id: "nba", name: "Basketball", icon: "🏀", available: false },
-          { id: "f1", name: "Formula 1", icon: "🏎️", available: false }
-        ].map((sport) => ({
-          ...sport,
-          questionCount: data.categories.find((c) => c.category === sport.id)?.question_count || 0
-        }));
-
-        setSports(sportsData);
-      } catch (err) {
-        console.error("Failed to load sports data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSports();
   }, []);
 
@@ -203,36 +277,82 @@ export default function SportSelection() {
     }
   };
 
+
+  // Render appropriate state based on loading/error/empty conditions
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <StateContainer>
+          <SpinningLoader size={48} />
+          <p style={{ marginTop: "1rem" }}>Loading available sports...</p>
+        </StateContainer>
+      );
+    }
+
+    if (error) {
+      return (
+        <StateContainer>
+          <ErrorIcon size={48} />
+          <EmptyStateTitle>Something went wrong</EmptyStateTitle>
+          <EmptyStateMessage>{error}</EmptyStateMessage>
+          <RefreshButton onClick={fetchSports}>Try Again</RefreshButton>
+        </StateContainer>
+      );
+    }
+
+    if (sports.length === 0) {
+      return (
+        <EmptyState>
+          <EmptyStateIcon>🔍</EmptyStateIcon>
+          <EmptyStateTitle>No Sports Available</EmptyStateTitle>
+          <EmptyStateMessage>
+            We couldn't find any sports categories right now. Please check back later or contact support if the problem persists.
+          </EmptyStateMessage>
+          <CTAButton onClick={fetchSports}>Refresh</CTAButton>
+        </EmptyState>
+      );
+    }
+
+    return (
+      <>
+        {/* ✅ Add Challenge of the Day Card */}
+        <ChallengeOfTheDay />
+
+        <CardGrid>
+          {sports.map((sport) => (
+            <SportCard 
+              key={sport.id} 
+              available={sport.available}
+              onClick={() => sport.available && handleSelectSport(sport)}
+              role="button"
+              aria-disabled={!sport.available}
+              tabIndex={sport.available ? 0 : -1}
+            >
+              <SportIcon role="img" aria-label={`${sport.name} icon`}>{sport.icon}</SportIcon>
+              <SportName>{sport.name}</SportName>
+              <QuestionCount>{sport.questionCount} Questions</QuestionCount>
+              {sport.available ? (
+                <CTAButton>Start Playing</CTAButton>
+              ) : (
+                <LockedOverlay>
+                  <Lock size={32} />
+                  <ComingSoonText>Coming Soon</ComingSoonText>
+                </LockedOverlay>
+              )}
+            </SportCard>
+          ))}
+   
+        </CardGrid>
+      </>
+    );
+};
+
+
   return (
     <PageContainer>
-      {/* Header */}
-     
-
+      
       <MainContent>
-        {/* Loading State */}
-        {loading ? (
-          <LoadingContainer>
-            <SpinningLoader size={48} />
-          </LoadingContainer>
-        ) : (
-          <CardGrid>
-            {sports.map((sport) => (
-              <SportCard key={sport.id} available={sport.available}>
-                <SportIcon>{sport.icon}</SportIcon>
-                <SportName>{sport.name}</SportName>
-                <QuestionCount available={sport.available}>{sport.questionCount} Questions</QuestionCount>
-                {sport.available ? (
-                  <CTAButton onClick={() => handleSelectSport(sport)}>Start Playing</CTAButton>
-                ) : (
-                  <LockedOverlay>
-                    <Lock size={32} />
-                    <ComingSoonText>Coming Soon</ComingSoonText>
-                  </LockedOverlay>
-                )}
-              </SportCard>
-            ))}
-          </CardGrid>
-        )}
+        {renderContent()}
       </MainContent>
     </PageContainer>
   );

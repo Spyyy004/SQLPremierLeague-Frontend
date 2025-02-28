@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { Trophy, Medal, Crown, Star } from 'lucide-react';
-
+import Mixpanel from "../utils/mixpanel";
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

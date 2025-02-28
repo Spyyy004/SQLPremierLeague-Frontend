@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { User, Share, Star, Coffee, ChevronDown, Code, Trophy, Users, Database } from "lucide-react";
+import { User, Share, Star, Coffee, ChevronDown, Code, Trophy, Users, Database, Github } from "lucide-react";
 import TerminalEffect from "./TerminalEffect";
 
 // Animated gradient background
@@ -560,19 +560,19 @@ export default function LandingPage() {
             <LogoText>SQL Premier League</LogoText>
           </LogoContainer>
           <NavButtons>
-            <Link to="/challenges">
-              <NavButton>
-                <Trophy size={16} /> Challenges
-              </NavButton>
-            </Link>
+          <NavButton onClick={() => window.open("https://github.com/Spyyy004/SQLPremierLeague-Frontend", "_blank")}>
+         <Github size={16} />Star on Github
+        </NavButton>
+
+
             <Link to="/leaderboard">
               <NavButton>
-                <Star size={16} /> Leaderboard
+                <Trophy size={16} />
               </NavButton>
             </Link>
           
             <NavButton onClick={() => window.open("https://buymeacoffee.com/iyushpawar", "_blank")}>
-         <Coffee size={16} /> Buy Me a Coffee
+         <Coffee size={16} /> Support the Project
         </NavButton>
          
           </NavButtons>
@@ -592,22 +592,9 @@ export default function LandingPage() {
          
           </ButtonContainer>
           
-          {showScrollPrompt && (
-            <ScrollPrompt>
-              <ScrollText>Scroll to explore</ScrollText>
-              <ChevronDown size={20} />
-            </ScrollPrompt>
-          )}
+         
         </HeroSection>
-        
-
-        <Footer>
-          <FooterLinks>
-            <FooterLink href="https://twitter.com/Iyush004" target="_blank">Twitter</FooterLink>
-            <FooterLink href="https://github.com/Spyyy004/SQLPremierLeague-Frontend" target="_blank">GitHub</FooterLink>
-          </FooterLinks>
-          <p>© {new Date().getFullYear()} SQL Premier League. All rights reserved.</p>
-        </Footer>
+      
       </Container>
     </>
   );
