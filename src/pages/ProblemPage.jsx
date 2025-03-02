@@ -10,6 +10,7 @@ import {AlertTriangle , LogIn,  CheckCircle, XCircle, ChevronDown, ChevronUp} fr
 import ReactGA from "react-ga4";
 import Mixpanel
  from "../utils/mixpanel";
+import DiscussionsTab from "./DiscussionsTab";
 const SubmissionsContainer = styled.div`
   padding: 1rem;
   overflow-y: auto;
@@ -857,7 +858,7 @@ const [questionType, setQuestionType] = useState("");
           )}
           {activeTab === "submissions" && <SubmissionsTab submissions={submissions} />}
           {activeTab === "discussions" && (
-            <div style={{ color: '#aaa' }}>Discuss this problem with other users.</div>
+            <DiscussionsTab questionId = {id}/>
           )}
         </ContentArea>
       </LeftPanel>

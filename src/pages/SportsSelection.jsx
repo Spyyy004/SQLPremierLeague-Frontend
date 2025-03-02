@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import { Lock, ArrowLeft, Loader, AlertTriangle, Database } from "lucide-react";
+import { Lock, ArrowLeft, Loader, AlertTriangle, Database, Star, X, Trophy } from "lucide-react";
 import ChallengeOfTheDay from "./ChallengeOfTheDay";
 
 // 🎨 Updated Theme Colors
@@ -204,6 +204,119 @@ const EmptyState = styled.div`
   max-width: 500px;
   margin: 0 auto;
 `;
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const Card = styled.div`
+  background: #1e1e2e;
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 165, 0, 0.4);
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: #15151f;
+  padding: 2.5rem;
+  border-radius: 16px;
+  text-align: center;
+  width: 420px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  animation: ${fadeIn} 0.3s ease-out;
+  position: relative;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: white;
+  }
+`;
+
+const Title = styled.h2`
+  color: #f8fafc;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+`;
+
+const Description = styled.p`
+  color: #bbb;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+
+  width: 100%
+`;
+
+const Button = styled.button`
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+
+  background: ${props => (props.primary ? "#60a5fa" : "#ef4444")};
+  color: white;
+
+  &:hover {
+    background: ${props => (props.primary ? "#2563eb" : "#dc2626")};
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
 
 const EmptyStateIcon = styled.div`
   font-size: 4rem;
@@ -239,7 +352,7 @@ export default function SportSelection() {
   const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [isModalOpen, setModalOpen] = useState(false);
   const fetchSports = async () => {
     try {
       setLoading(true);
@@ -250,9 +363,10 @@ export default function SportSelection() {
       const sportsData = [
         { id: "EPL", name: "Premier League", icon: "⚽", available: true },
         { id: "cricket", name: "IPL", icon: "🏏", available: true },
+        { id: "NBA", name: "NBA", icon: "🏀", available: true },
         { id: "F1", name: "Formula 1", icon: "🏎️", available: true },
         { id: "nfl", name: "NFL", icon: "🏈", available: false },
-        { id: "nba", name: "Basketball", icon: "🏀", available: false },
+       
       ].map((sport) => ({
         ...sport,
         questionCount: data.categories.find((c) => c.category === sport.id)?.question_count || 0
@@ -266,6 +380,12 @@ export default function SportSelection() {
       setLoading(false);
     }
   };
+
+  const handleStartTest = () => {
+    setModalOpen(false);
+    navigate("/sql-score-test");
+  };
+
 
   useEffect(() => {
     fetchSports();
@@ -341,8 +461,9 @@ export default function SportSelection() {
               )}
             </SportCard>
           ))}
-   
+
         </CardGrid>
+       
       </>
     );
 };

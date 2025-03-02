@@ -295,12 +295,14 @@ export default function SignInPage() {
         if (!loginResponse.ok) {
           throw new Error(loginData.error || "Login after registration failed");
         }
+        localStorage.setItem("user_id",loginData?.user_id)
   
         // Step 3: Store the token from the login response
         localStorage.setItem("token", loginData.access_token);
         localStorage.setItem("refreshtoken", loginData.refresh_token);
         localStorage.setItem("csrfToken", loginData.csrf_token);
       } else {
+        localStorage.setItem("user_id",data?.user_id)
         // Step 3: Store the token if it was a direct login
         localStorage.setItem("token", data.access_token);
         localStorage.setItem("refreshtoken", data.refresh_token);
