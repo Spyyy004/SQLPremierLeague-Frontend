@@ -949,7 +949,7 @@ const [modalOpen, setModalOpen] = useState(false);
             {renderResultTable(queryResults.correct_query_result, "Expected Result")}
             {executionTime !== null && (
         <ExecutionTime>
-          ⏱️ Your Query: <strong>{executionTime} ms</strong> | Expected: <strong>{expectedExecutionTime} ms</strong>
+          ⏱️ Your Query: <strong>{executionTime} ms</strong>
         </ExecutionTime>
       )}
           </ResultsContainer>

@@ -366,7 +366,7 @@ export default function SportSelection() {
         { id: "cricket", name: "IPL", icon: "🏏", available: true },
         { id: "NBA", name: "NBA", icon: "🏀", available: true },
         { id: "F1", name: "Formula 1", icon: "🏎️", available: true },
-        { id: "nfl", name: "NFL", icon: "🏈", available: false },
+        { id: "NFL", name: "NFL", icon: "🏈", available: true },
        
       ].map((sport) => ({
         ...sport,
