@@ -317,7 +317,7 @@ const SolveButton = styled.a`
   
   ${props => props.view === 'grid' ? `
     margin-top: 1rem;
-    width: 50%;
+
     justify-content: center;
   ` : `
     flex-shrink: 0;

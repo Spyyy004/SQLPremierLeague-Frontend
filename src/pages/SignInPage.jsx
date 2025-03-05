@@ -230,6 +230,20 @@ const ToggleButton = styled.button`
   }
 `;
 
+const GuestLink = styled.a`
+  color: #94a3b8;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #60a5fa;
+  }
+`;
 
 export default function SignInPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -262,7 +276,7 @@ export default function SignInPage() {
       ReactGA.event({
         category: "Authentication",
         action: isLogin ? "Login Attempt" : "Registration Attempt",
-        label: email, // Track the user’s email for debugging (consider hashing for privacy)
+        label: email, // Track the user's email for debugging (consider hashing for privacy)
       });
   
       // Step 1: Call Register/Login API
@@ -316,7 +330,13 @@ export default function SignInPage() {
   
       // Step 4: Navigate to challenges page
       const redirectTo = location.state?.from || "/categories";
-      navigate(redirectTo);
+      console.log(redirectTo,'kalala')
+      if(redirectTo === '/sql-test'){
+        navigate('/sql-test-result');
+      }
+      else{
+        navigate(redirectTo)
+      }
   
     } catch (err) {
       setError(err.message);
@@ -458,6 +478,10 @@ export default function SignInPage() {
               </>
             )}
           </LoadingButton>
+          
+          <GuestLink onClick={() => navigate('/categories')}>
+            or play as guest →
+          </GuestLink>
         </Form>
 
         <AdditionalLinks>

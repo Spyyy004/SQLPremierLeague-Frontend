@@ -80,6 +80,7 @@ const SportCard = styled.div`
   position: relative;
   overflow: hidden;
   border-radius: 12px;
+  
   padding: 2rem;
   background: ${cardBgColor};
   text-align: center;
@@ -383,7 +384,7 @@ export default function SportSelection() {
 
   const handleStartTest = () => {
     setModalOpen(false);
-    navigate("/sql-score-test");
+    navigate("/sql-test");
   };
 
 
@@ -461,7 +462,11 @@ export default function SportSelection() {
               )}
             </SportCard>
           ))}
-
+            <SportCard onClick={() => setModalOpen(true)}>
+            <Trophy size={48} />
+            <SportName>The SQL Test</SportName>
+            <CTAButton>Check my SQL Score</CTAButton>
+          </SportCard>
         </CardGrid>
        
       </>
@@ -475,6 +480,18 @@ export default function SportSelection() {
       <MainContent>
         {renderContent()}
       </MainContent>
+      {isModalOpen && (
+        <ModalOverlay>
+          <ModalContent>
+            <Title>SQL Score Test 🏆</Title>
+            <Description>Test your SQL skills in a 2-minute challenge!</Description>
+            <ButtonContainer>
+              <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+              <Button primary onClick={handleStartTest}>Start Test</Button>
+            </ButtonContainer>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </PageContainer>
   );
 }

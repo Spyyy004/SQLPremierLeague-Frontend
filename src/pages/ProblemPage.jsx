@@ -1,5 +1,3 @@
-
-
 import React from "react"; 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -9,8 +7,10 @@ import MonacoEditor from "@monaco-editor/react";
 import {AlertTriangle , LogIn,  CheckCircle, XCircle, ChevronDown, ChevronUp} from 'lucide-react';
 import ReactGA from "react-ga4";
 import Mixpanel
+
  from "../utils/mixpanel";
-import DiscussionsTab from "./DiscussionsTab";
+import DiscussionsTab from "../components/DiscussionsTab";
+import ReportIssueModal from "../components/ReportIssueModal";
 const SubmissionsContainer = styled.div`
   padding: 1rem;
   overflow-y: auto;
@@ -398,6 +398,14 @@ const NextChallengeButton = styled(Button)`
 `;
 
 
+
+const showToast = (message) => {
+  setToastMessage(message);
+  setTimeout(() => {
+    setToastMessage("");
+  }, 2000);
+};
+
  function SubmissionsTab({ submissions }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
 
@@ -473,6 +481,8 @@ export default function ProblemPage() {
   const [isRepeatSubmission, setIsRepeatSubmission] = useState(true);
   const [xpGained, setXpGained] = useState(0);
 const [questionType, setQuestionType] = useState(""); 
+const [toastMessage, setToastMessage] = useState("");
+const [modalOpen, setModalOpen] = useState(false); 
   const navigate = useNavigate()
   useEffect(() => {
     fetchProblem();
@@ -798,6 +808,20 @@ const [questionType, setQuestionType] = useState("");
 
   return (
     <PageContainer>
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: '#4caf50',
+          color: 'white',
+          padding: '10px 20px',
+          borderRadius: '5px',
+          zIndex: 1000,
+        }}>
+          {toastMessage}
+        </div>
+      )}
       <LeftPanel>
         <Tabs>
           <Tab 
@@ -875,7 +899,8 @@ const [questionType, setQuestionType] = useState("");
               minimap: { enabled: false },
               fontSize: 14,
               lineHeight: 1.5,
-              padding: { top: 10 }
+              padding: { top: 10 },
+              fontFamily: "'Consolas', 'Monaco', monospace"
             }}
           />
         </EditorContainer>
@@ -895,6 +920,8 @@ const [questionType, setQuestionType] = useState("");
             >
               {isLoading ? 'Submitting...' : 'Submit'}
             </Button>
+            
+            <Button onClick={() => setModalOpen(true)}>Report an Issue</Button>
           </ActionButtons>
           
           {!error && queryResults?.message && (
@@ -963,7 +990,13 @@ const [questionType, setQuestionType] = useState("");
     </SuccessPopup>
   </PopupOverlay>
 )}
-
+ <ReportIssueModal 
+  isOpen={modalOpen} 
+  onClose={() => {
+    setModalOpen(false);
+    showToast("Issue reported successfully"); // Show toast when modal closes
+  }} 
+ />
     </PageContainer>
   );
 }

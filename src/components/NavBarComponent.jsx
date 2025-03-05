@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X, User, Award, BarChart2, LogIn } from "lucide-react";
 import styled from "styled-components";
 import Mixpanel from "../utils/mixpanel";
@@ -39,7 +39,6 @@ const CloseButton = styled.button`
     background: #dc2626;
   }
 `;
-
 
 const XPContainer = styled.div`
   display: flex;
@@ -101,6 +100,7 @@ const PopupOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 100;
 `;
 
 const Popup = styled.div`
@@ -109,26 +109,40 @@ const Popup = styled.div`
   border-radius: 8px;
   text-align: center;
   width: 300px;
+  position: relative;
 `;
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [xp, setXP] = useState(0);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const popupRef = useRef(null);
+
   useEffect(() => {
     fetchXP();
-  
-  }, []);
+  }, );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowLoginPopup(false);
+      }
+    };
+
+    if (showLoginPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showLoginPopup]);
 
   const handleLogin = () => {
-    // Redirect to login/signup page
     window.location.href = "/signin";
   };
-
-
-
 
   const fetchXP = async () => {
     try {
@@ -136,7 +150,7 @@ export default function Navbar() {
       const response = await fetch("https://sqlpremierleague-backend.onrender.com/profile", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         credentials: "include",
@@ -144,55 +158,39 @@ export default function Navbar() {
 
       if (!response.ok) throw new Error("Failed to fetch XP");
 
-      const data = await response.json(); 
+      const data = await response.json();
       setIsLoggedIn(true);
       setXP(data.xp || 0);
     } catch (error) {
       console.error("Error fetching XP:", error);
-      setIsLoggedIn(false)
+      setIsLoggedIn(false);
     }
   };
-
 
   const handleLeaderboardClick = () => {
-    // 🔹 Track Mixpanel Event: Leaderboard Attempt
-    Mixpanel.track("Leaderboard Clicked", {
-      is_logged_in: isLoggedIn,
-    });
-  
+    Mixpanel.track("Leaderboard Clicked", { is_logged_in: isLoggedIn });
+
     if (!isLoggedIn) {
       setShowLoginPopup(true);
-  
-      // 🔹 Track Mixpanel Event: Prompted for Login
-      Mixpanel.track("Leaderboard Access Blocked", {
-        reason: "User Not Logged In",
-      });
-  
+      Mixpanel.track("Leaderboard Access Blocked", { reason: "User Not Logged In" });
     } else {
       navigate("/leaderboard");
-  
-      // 🔹 Track Mixpanel Event: Successful Leaderboard Access
-      Mixpanel.track("Leaderboard Accessed", {
-        user: "Logged In",
-      });
+      Mixpanel.track("Leaderboard Accessed", { user: "Logged In" });
     }
   };
-  
 
   return (
     <NavbarContainer>
-      {/* Left Section: Logo */}
       <LeftContainer>
         <Link to="/categories">
           <img src="/sqlLogo.webp" alt="SQL Premier League" height="40" />
         </Link>
       </LeftContainer>
 
-      {/* Right Section: XP & Profile Icon */}
       <RightContainer>
-      <IconButton onClick={handleLeaderboardClick}>
-            <BarChart2 size={28} />
-          </IconButton>
+        <IconButton onClick={handleLeaderboardClick}>
+          <BarChart2 size={28} />
+        </IconButton>
         <XPContainer>
           <Award size={20} /> {xp} XP
         </XPContainer>
@@ -204,17 +202,17 @@ export default function Navbar() {
       <MenuButton onClick={() => setMenuOpen(!menuOpen)}>
         {menuOpen ? <X /> : <Menu />}
       </MenuButton>
+
       {showLoginPopup && (
-  <PopupOverlay>
-    <Popup>
-      <LogIn size={40} color="#60a5fa" />
-      <h3 style={{ color: "#fff", marginBottom: "1rem" }}>Login Required</h3>
-      <p style={{ color: "#bbb" }}>You need to log in to see the leaderboard.</p>
-      <CloseButton onClick={handleLogin}>Go to Login</CloseButton>
-    </Popup>
-  </PopupOverlay>
-)}
+        <PopupOverlay>
+          <Popup ref={popupRef}>
+            <LogIn size={40} color="#60a5fa" />
+            <h3 style={{ color: "#fff", marginBottom: "1rem" }}>Login Required</h3>
+            <p style={{ color: "#bbb" }}>You need to log in to see the leaderboard.</p>
+            <CloseButton onClick={handleLogin}>Go to Login</CloseButton>
+          </Popup>
+        </PopupOverlay>
+      )}
     </NavbarContainer>
-    
   );
 }

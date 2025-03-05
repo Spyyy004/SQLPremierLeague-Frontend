@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import styled from "styled-components";
+import styled, {createGlobalStyle} from "styled-components";
 import { User, Share, Star, Coffee, ChevronDown, Code, Trophy, Users, Database, Github } from "lucide-react";
-import TerminalEffect from "./TerminalEffect";
+import TerminalEffect from "../components/TerminalEffect";
+import Mixpanel from "../utils/mixpanel";
+import { Helmet } from "react-helmet";
+
+
 
 // Animated gradient background
+
+const GlobalStyle = createGlobalStyle`
+  
+  * {
+    font-family: 'Gentium Book Plus', serif;
+  }
+`;
 const GradientBackground = styled.div`
   position: fixed;
   top: 0;
@@ -85,7 +96,7 @@ const SmallLogo = styled.img`
 const LogoText = styled.span`
   font-weight: bold;
   font-size: 1.2rem;
-  
+  font-family: 'Gentium Book Plus',serif !important;
   @media (max-width: 768px) {
     display: none;
   }
@@ -295,140 +306,7 @@ const SecondaryButton = styled.a`
   }
 `;
 
-const TestimonialSection = styled.section`
-  width: 100%;
-  max-width: 1000px;
-  margin: 4rem 0;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-`;
 
-const TestimonialTitle = styled.h2`
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  position: relative;
-  display: inline-block;
-  
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: #3b82f6;
-    border-radius: 3px;
-  }
-`;
-
-const TestimonialGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const TestimonialCard = styled.div`
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 1.5rem;
-  position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  
-  &:before {
-    content: """;
-    position: absolute;
-    top: 10px;
-    left: 15px;
-    font-size: 4rem;
-    opacity: 0.2;
-    font-family: Georgia, serif;
-    color: #60a5fa;
-  }
-`;
-
-const TestimonialText = styled.p`
-  font-style: italic;
-  color: #e2e8f0;
-  font-size: 1rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-`;
-
-const TestimonialAuthor = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const TestimonialAvatar = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: #3b82f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-`;
-
-const TestimonialName = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const AuthorName = styled.span`
-  font-weight: 600;
-`;
-
-const AuthorTitle = styled.span`
-  font-size: 0.85rem;
-  color: #b3b3b3;
-`;
-
-const CtaSection = styled.section`
-  width: 100%;
-  max-width: 800px;
-  margin: 4rem 0;
-  text-align: center;
-`;
-
-const CtaTitle = styled.h2`
-  font-size: 2.2rem;
-  margin-bottom: 1rem;
-  
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-  }
-`;
-
-const CtaDescription = styled.p`
-  font-size: 1.2rem;
-  color: #e2e8f0;
-  max-width: 600px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
-  
-  @media (max-width: 768px) {
-    font-size: 1.1rem;
-  }
-`;
-
-const BadgeContainer = styled.div`
-  margin-top: 3rem;
-  transition: transform 0.3s;
-  
-  &:hover {
-    transform: translateY(-3px);
-  }
-`;
 
 const Footer = styled.footer`
   width: 100%;
@@ -489,7 +367,7 @@ const ScrollText = styled.span`
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [showScrollPrompt, setShowScrollPrompt] = useState(true);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 100) {
@@ -503,55 +381,15 @@ export default function LandingPage() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  const features = [
-    {
-      icon: <Database size={28} />,
-      title: "Real-World SQL Challenges",
-      description: "Practice with realistic sports datasets that simulate real-world database scenarios."
-    },
-    {
-      icon: <Trophy size={28} />,
-      title: "Competitive Leaderboards",
-      description: "Compete with other SQL enthusiasts and climb the ranks with each challenge you solve."
-    },
-    {
-      icon: <Code size={28} />,
-      title: "Interactive SQL Editor",
-      description: "Write and execute queries in our powerful editor with syntax highlighting and real-time feedback."
-    },
-    {
-      icon: <Star size={28} />,
-      title: "Progressive Difficulty",
-      description: "Start with the basics and advance to complex queries as you build your SQL mastery."
-    },
-    {
-      icon: <Share size={28} />,
-      title: "Share Your Solutions",
-      description: "Learn from others by sharing your approach and viewing community solutions."
-    },
-    {
-      icon: <Users size={28} />,
-      title: "Active Community",
-      description: "Join discussions, get help, and collaborate with fellow SQL enthusiasts."
-    }
-  ];
-  
-  const testimonials = [
-    {
-      text: "SQL Premier League completely transformed how I practice SQL. The sports context makes learning fun, and I've improved my query skills dramatically in just a few weeks.",
-      name: "Sarah K.",
-      title: "Data Analyst"
-    },
-    {
-      text: "As someone preparing for technical interviews, these challenges have been invaluable. The competitive aspect keeps me motivated and the difficulty progression is perfect.",
-      name: "Michael T.",
-      title: "Software Engineer"
-    }
-  ];
+
+ 
+ 
   
   return (
     <>
+<Helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:wght@400;700&display=swap" rel="stylesheet" />
+</Helmet>
       <GradientBackground />
       <Container>
         <Header style={{ boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.3)' : 'none' }}>
@@ -564,12 +402,6 @@ export default function LandingPage() {
          <Github size={16} />Star on Github
         </NavButton>
 
-
-            <Link to="/leaderboard">
-              <NavButton>
-                <Trophy size={16} />
-              </NavButton>
-            </Link>
           
             <NavButton onClick={() => window.open("https://buymeacoffee.com/iyushpawar", "_blank")}>
          <Coffee size={16} /> Support the Project
@@ -596,6 +428,7 @@ export default function LandingPage() {
         </HeroSection>
       
       </Container>
+
     </>
   );
 }
