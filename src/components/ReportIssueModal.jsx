@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import {useParams} from 'react-router-dom'
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -55,12 +56,12 @@ const Button = styled.button`
 
 const ReportIssueModal = ({ isOpen, onClose }) => {
   const [issueType, setIssueType] = useState('');
+  const {id} = useParams()
   const [comments, setComments] = useState('');
 
+  const userId = localStorage.getItem('user_id');
   const handleSubmit = async () => {
     // Handle the submission logic here
-    console.log('Issue Type:', issueType);
-    console.log('Comments:', comments);
 
     try {
       const response = await fetch('https://sqlpremierleague-backend.onrender.com/report-issue', {
@@ -72,6 +73,8 @@ const ReportIssueModal = ({ isOpen, onClose }) => {
         body: JSON.stringify({
           issue_reported: issueType, // Adjusted to match the expected request body
           comments: comments,
+          user_id: userId,
+          question_id: id
         }),
       });
 
@@ -80,9 +83,7 @@ const ReportIssueModal = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      console.log('Response from server:', data);
     } catch (error) {
-      console.error('Error reporting issue:', error);
     }
 
     onClose(); // Close the modal after submission
