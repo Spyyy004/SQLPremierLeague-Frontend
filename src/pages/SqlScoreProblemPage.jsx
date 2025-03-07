@@ -794,7 +794,6 @@ const [questionType, setQuestionType] = useState("");
             });
           }
         } catch (error) {
-          console.error("Error resuming test:", error);
           // If there's an error, clean up the invalid session
           
           localStorage.removeItem("test_score");
@@ -846,7 +845,6 @@ const [questionType, setQuestionType] = useState("");
       if (!response.ok) throw new Error("Failed to refresh token");
       return true; // ✅ Successfully refreshed token
     } catch (error) {
-      console.error("Refresh token failed. Logging out.", error);
       // window.location.href = "/signin"; // Redirect to login
       return false;
     }
@@ -865,7 +863,6 @@ const [questionType, setQuestionType] = useState("");
     }
     let response = await fetch(url, options);
     if (response.status === 401) {
-      console.warn("Access token expired. Refreshing...");
   
       const refreshSuccess = await refreshAccessToken();
       if (!refreshSuccess) return null; // If refresh fails, log out the user
@@ -895,7 +892,6 @@ const [questionType, setQuestionType] = useState("");
       setTables(data.tables);
       sendMixpanelEvent(data?.problem);
     } catch (error) {
-      console.error("Error fetching problem:", error);
     }
   };
   
@@ -913,7 +909,6 @@ const [questionType, setQuestionType] = useState("");
         localStorage.setItem("csrf_token", data.csrf_token);  // ✅ Store CSRF token
       }
     } catch (err) {
-      console.error("CSRF Token Fetch Error:", err.message);
     }
   };
   
@@ -934,7 +929,6 @@ const [questionType, setQuestionType] = useState("");
 
     const questionId = parseInt(currentQuestion.id);
     if (!questionId || isNaN(questionId)) {
-      console.error("Invalid question ID:", currentQuestion.id);
       return;
     }
 
@@ -1021,7 +1015,6 @@ const [questionType, setQuestionType] = useState("");
         setFeedback({ type: 'error', message: 'Incorrect Answer!' });
       }
     } catch (error) {
-      console.error("Error executing query:", error);
       setQueryResults({
         error: error.message,
         user_query_result: [],
@@ -1038,7 +1031,6 @@ const [questionType, setQuestionType] = useState("");
     try {
         navigate(`/challenges?category=${problem?.category}`);
     } catch (error) {
-      console.error('Error fetching random question:', error);
     }
   };
   
@@ -1109,7 +1101,6 @@ const [questionType, setQuestionType] = useState("");
         setTestStarted(true);
       }
     } catch (error) {
-      console.error("Error starting test:", error);
     }
   };
 
@@ -1159,7 +1150,6 @@ const [questionType, setQuestionType] = useState("");
         setUserCode("-- Write your SQL query here --");
       } 
     } catch (error) {
-      console.error("Error fetching next question:", error);
     }
   };
 
@@ -1207,7 +1197,6 @@ const [questionType, setQuestionType] = useState("");
       setTestStarted(false);
       setTestSessionId(null);
     } catch (error) {
-      console.error("Error ending test:", error);
       // Optionally show error to user
       setFeedback({
         type: 'error',
@@ -1260,7 +1249,6 @@ const [questionType, setQuestionType] = useState("");
       }
       return null;
     } catch (error) {
-      console.error("Error claiming test:", error);
       return null;
     }
   };
@@ -1277,7 +1265,6 @@ const [questionType, setQuestionType] = useState("");
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching test report:", error);
       return null;
     }
   };

@@ -234,7 +234,6 @@ export default function LeaderboardPage() {
       setLeaderboard(data.leaderboard);
       setUserRank(data.user_rank);
     } catch (error) {
-      console.error("Error fetching leaderboard:", error);
     } finally {
       setIsLoading(false);
     }

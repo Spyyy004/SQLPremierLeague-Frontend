@@ -112,7 +112,6 @@ export default function DiscussionsTab({ questionId }) {
   useEffect(() => {
     fetchDiscussions();
     const storedUserId = parseInt(localStorage.getItem("user_id")); // ✅ Fetch user ID from localStorage
-    console.log(storedUserId,'aknskd')
     if (storedUserId) setLoggedInUserId(storedUserId);
   }, []);
 
@@ -122,7 +121,6 @@ export default function DiscussionsTab({ questionId }) {
       const data = await response.json();
       setComments(data);
     } catch (error) {
-      console.error("Error fetching discussions:", error);
     }
   };
 
@@ -143,7 +141,6 @@ export default function DiscussionsTab({ questionId }) {
         setNewComment("");
       }
     } catch (error) {
-      console.error("Error posting comment:", error);
     }
   };
 
@@ -156,7 +153,6 @@ export default function DiscussionsTab({ questionId }) {
       });
       fetchDiscussions();
     } catch (error) {
-      console.error("Error liking comment:", error);
     }
   };
 
@@ -172,7 +168,6 @@ export default function DiscussionsTab({ questionId }) {
       setEditingCommentId(null);
       fetchDiscussions();
     } catch (error) {
-      console.error("Error editing comment:", error);
     }
   };
 
@@ -185,7 +180,6 @@ export default function DiscussionsTab({ questionId }) {
       });
       fetchDiscussions();
     } catch (error) {
-      console.error("Error deleting comment:", error);
     }
   };
 

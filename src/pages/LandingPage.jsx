@@ -387,9 +387,7 @@ export default function LandingPage() {
   
   return (
     <>
-<Helmet>
-  <link href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:wght@400;700&display=swap" rel="stylesheet" />
-</Helmet>
+
       <GradientBackground />
       <Container>
         <Header style={{ boxShadow: scrolled ? '0 4px 20px rgba(0, 0, 0, 0.3)' : 'none' }}>

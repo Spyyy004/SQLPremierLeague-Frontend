@@ -162,7 +162,6 @@ export default function Navbar() {
       setIsLoggedIn(true);
       setXP(data.xp || 0);
     } catch (error) {
-      console.error("Error fetching XP:", error);
       setIsLoggedIn(false);
     }
   };

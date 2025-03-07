@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import styled, { keyframes } from "styled-components";
 import { Search, Filter, Grid, List, Clock, Award, Users, ChevronRight, ArrowUp, Loader } from "lucide-react";
-
+import {Helmet} from 'react-helmet'
 // Animation keyframes
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
@@ -37,8 +37,6 @@ const PageContainer = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #13151a 0%, #1e2028 100%);
   color: #e1e2e5;
-  padding: 2rem;
-  
   @media (max-width: 768px) {  /* ✅ Mobile Support */
     padding: 1rem;
   }
@@ -361,6 +359,19 @@ const ScrollToTop = styled.button`
   }
 `;
 
+const SolvedBadge = styled.span`
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+`;
+
+const DifficultyAndSolvedStatusContainer = styled.span`
+display: flex;
+justify-content:space-between;
+flex-direction:row;
+`
+
 export default function ChallengesPage() {
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -372,6 +383,7 @@ export default function ChallengesPage() {
   const [sortBy, setSortBy] = useState("difficulty");
   const [searchParams] = useSearchParams();
   const category = searchParams.get("category"); 
+  const [solvedChallenges, setSolvedChallenges] = useState([]);
 
   useEffect(() => {
     fetchChallenges();
@@ -439,7 +451,6 @@ export default function ChallengesPage() {
   
       return data.access_token;
     } catch (error) {
-      console.error("Refresh token failed. Logging out.", error);
       localStorage.removeItem("token");
       localStorage.removeItem("refreshtoken");
       window.location.href = "/signin"; // Redirect to login
@@ -458,7 +469,6 @@ export default function ChallengesPage() {
     let response = await fetch(url, options);
   
     if (response.status === 401) {
-      console.warn("Access token expired. Refreshing...");
       
       const newToken = await refreshAccessToken();
       if (!newToken) return null; // If refresh fails, user is logged out
@@ -493,15 +503,16 @@ export default function ChallengesPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials : 'include'
       });
 
       if (!response.ok) throw new Error("Failed to fetch challenges");
 
       const data = await response.json();
       setChallenges(data.challenges);
+    setSolvedChallenges(data?.solved_question_ids ?? []);
     } catch (error) {
       setError("Failed to load challenges. Please try again later.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -569,6 +580,9 @@ export default function ChallengesPage() {
   return (
     <GlobalStyle>
       <PageContainer>
+        <Helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Gentium+Book+Plus:wght@400;700&display=swap" rel="stylesheet" />
+</Helmet>
         <ContentWrapper>
         
 
@@ -667,9 +681,14 @@ export default function ChallengesPage() {
               {filteredAndSortedChallenges.map((challenge) => (
                 <ChallengeCard key={challenge.id} view={view}>
                   <CardContent>
+                    <DifficultyAndSolvedStatusContainer>
                     <DifficultyBadge type={challenge.type}>
                       {challenge.type.toUpperCase()}
                     </DifficultyBadge>
+                    <SolvedBadge solved={solvedChallenges.includes(challenge.id)}>
+                      {solvedChallenges.includes(challenge.id) ? '✓' : ''}
+                    </SolvedBadge>
+                    </DifficultyAndSolvedStatusContainer>
                     <QuestionTitle view={view}>{challenge.question}</QuestionTitle>
                     <MetadataContainer>
                       <MetadataItem>
@@ -685,6 +704,7 @@ export default function ChallengesPage() {
                        {getSuccessRate(challenge.type)}
                       </MetadataItem>
                     </MetadataContainer>
+                 
                   </CardContent>
                   <SolveButton href={`/solve/${challenge.id}`} view={view}>
                     Solve Challenge

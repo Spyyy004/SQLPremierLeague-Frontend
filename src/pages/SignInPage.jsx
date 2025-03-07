@@ -330,7 +330,6 @@ export default function SignInPage() {
   
       // Step 4: Navigate to challenges page
       const redirectTo = location.state?.from || "/categories";
-      console.log(redirectTo,'kalala')
       if(redirectTo === '/sql-test'){
         navigate('/sql-test-result');
       }

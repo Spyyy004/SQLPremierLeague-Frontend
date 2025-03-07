@@ -367,6 +367,7 @@ export default function SportSelection() {
         { id: "NBA", name: "NBA", icon: "🏀", available: true },
         { id: "F1", name: "Formula 1", icon: "🏎️", available: true },
         { id: "NFL", name: "NFL", icon: "🏈", available: true },
+        { id: "FIFA", name: "FIFA World Cup", icon: "🏆", available: true },
        
       ].map((sport) => ({
         ...sport,
@@ -375,7 +376,6 @@ export default function SportSelection() {
 
       setSports(sportsData);
     } catch (err) {
-      console.error("Failed to load sports data:", err);
       setError("Unable to load sports data. Please try again.");
     } finally {
       setLoading(false);

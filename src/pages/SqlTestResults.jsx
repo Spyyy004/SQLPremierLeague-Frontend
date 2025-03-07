@@ -143,7 +143,6 @@ const SqlTestResults = () => {
       try {
         const token = localStorage.getItem("access_token");
         const test_session_id =  localStorage.getItem("test_session_id")|| '';
-        console.log(test_session_id, 'akkwksd')
         // Claim the test session
         const claimResponse = await fetch(`https://sqlpremierleague-backend.onrender.com/claim-test/${test_session_id}`, {
           method: 'POST',

@@ -81,7 +81,7 @@ const PageContainer = styled.div`
   height: 100vh;
   background: #1e1e2e;
   color: white;
-  overflow: hidden; // Prevent page-level scroll
+  overflow: hidden;
 `;
 
 const LeftPanel = styled.div`
@@ -90,6 +90,8 @@ const LeftPanel = styled.div`
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  height: 100%;
+  overflow-y: auto;
 `;
 
 const RightPanel = styled.div`
@@ -97,8 +99,8 @@ const RightPanel = styled.div`
   display: flex;
   flex-direction: column;
   background: #282a36;
-  height: calc(100vh - 10%);
-  position: relative; /* Establish a positioning context for sticky children */
+  height: 90%;
+  overflow-y: auto;
 `;
 
 
@@ -399,12 +401,6 @@ const NextChallengeButton = styled(Button)`
 
 
 
-const showToast = (message) => {
-  setToastMessage(message);
-  setTimeout(() => {
-    setToastMessage("");
-  }, 2000);
-};
 
  function SubmissionsTab({ submissions }) {
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -483,6 +479,8 @@ export default function ProblemPage() {
 const [questionType, setQuestionType] = useState(""); 
 const [toastMessage, setToastMessage] = useState("");
 const [modalOpen, setModalOpen] = useState(false); 
+const [xpSpent, setXpSpent] = useState(0);
+const [expandedHintIndex, setExpandedHintIndex] = useState(null);
   const navigate = useNavigate()
   useEffect(() => {
     fetchProblem();
@@ -510,12 +508,24 @@ const [modalOpen, setModalOpen] = useState(false);
       if (!response.ok) throw new Error("Failed to refresh token");
       return true; // ✅ Successfully refreshed token
     } catch (error) {
-      console.error("Refresh token failed. Logging out.", error);
       // window.location.href = "/signin"; // Redirect to login
       return false;
     }
   };
+  const handleHintOpen = () => {
+    setXpSpent(prev => {
+      const newXpSpent = Math.min(prev + 10,30);
+      localStorage.setItem(`${id}xpSpent`, newXpSpent);
+      return newXpSpent;
+    });
+  };
   
+  const showToast = (message) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage("");
+    }, 2000);
+  };
   
   const fetchWithAuth = async (url, options = {}) => {
     
@@ -529,7 +539,6 @@ const [modalOpen, setModalOpen] = useState(false);
     }
     let response = await fetch(url, options);
     if (response.status === 401) {
-      console.warn("Access token expired. Refreshing...");
   
       const refreshSuccess = await refreshAccessToken();
       if (!refreshSuccess) return null; // If refresh fails, log out the user
@@ -559,7 +568,6 @@ const [modalOpen, setModalOpen] = useState(false);
       setTables(data.tables);
       sendMixpanelEvent(data?.problem);
     } catch (error) {
-      console.error("Error fetching problem:", error);
     }
   };
   
@@ -576,7 +584,6 @@ const [modalOpen, setModalOpen] = useState(false);
       const data = await response.json();
       setSubmissions(data.submissions);
     } catch (error) {
-      console.error("Error fetching submissions:", error);
     }
   };
 
@@ -594,7 +601,6 @@ const [modalOpen, setModalOpen] = useState(false);
         localStorage.setItem("csrf_token", data.csrf_token);  // ✅ Store CSRF token
       }
     } catch (err) {
-      console.error("CSRF Token Fetch Error:", err.message);
     }
   };
   
@@ -664,12 +670,13 @@ const [modalOpen, setModalOpen] = useState(false);
         setError(null);
         setIsLoading(true);
         const endpoint = isSubmit ? 'submit-answer' : 'run-answer';
+        const totalXpSpent = localStorage.getItem(`${id}xpSpent`) || 0;
         const response = await fetchWithAuth(
           `https://sqlpremierleague-backend.onrender.com/${endpoint}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json"},
-            body: JSON.stringify({ user_query: cleanedQuery, question_id: id, is_submit: isSubmit }),
+            body: JSON.stringify({ user_query: cleanedQuery, question_id: id, is_submit: isSubmit, xp_spent: parseInt(totalXpSpent) }),
             credentials: "include",
           }
         );
@@ -690,8 +697,7 @@ const [modalOpen, setModalOpen] = useState(false);
           if (questionType === "easy") xp = 50;
           else if (questionType === "medium") xp = 100;
           else if (questionType === "hard") xp = 200;
-  
-          setXpGained(xp);
+          setXpGained(Math.max(0,data?.xp_award) ?? xp);
           setSuccess(data.is_correct);
           setError(null);
   
@@ -723,7 +729,8 @@ const [modalOpen, setModalOpen] = useState(false);
             setShowSuccessPopup(true);
             setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5 seconds
           }
-  
+          localStorage.removeItem(`${id}xpSpent`)
+          
         } else {
           setError({ message: data?.details ?? "An error occurred" });
           setSuccess(false);
@@ -764,7 +771,6 @@ const [modalOpen, setModalOpen] = useState(false);
     try {
         navigate(`/challenges?category=${problem?.category}`);
     } catch (error) {
-      console.error('Error fetching random question:', error);
     }
   };
   
@@ -842,6 +848,12 @@ const [modalOpen, setModalOpen] = useState(false);
           >
             Discussions
           </Tab>
+          <Tab 
+            active={activeTab === "hints"} 
+            onClick={() => setActiveTab("hints")}
+          >
+            Hints
+          </Tab>
         </Tabs>
 
         <ContentArea>
@@ -883,6 +895,31 @@ const [modalOpen, setModalOpen] = useState(false);
           {activeTab === "submissions" && <SubmissionsTab submissions={submissions} />}
           {activeTab === "discussions" && (
             <DiscussionsTab questionId = {id}/>
+          )}
+          {activeTab === "hints" && (
+            <div style={{ padding: '1rem', background: '#15151f', borderRadius: '8px' }}>
+              <h3 style={{ color: '#60a5fa', marginBottom: '1rem' }}>Hints 💡</h3>
+              {problem.hints.length === 0 ? (
+                <p style={{ color: '#bbb', fontStyle: 'italic' }}>Hints coming soon</p>
+              ) : (
+                problem.hints.map((hint, index) => (
+                  <div key={index} style={{ marginBottom: '1rem' }}>
+                    <ToggleQueryButton onClick={() => {
+                      handleHintOpen();
+                      setExpandedHintIndex(expandedHintIndex === index ? null : index);
+                      showToast("You will lose 10 XP for viewing this hint.");
+                    }}>
+                      {expandedHintIndex === index ? "Hide Hint" : `View Hint ${index + 1} 💡 (10 XP)`}
+                    </ToggleQueryButton>
+                    {expandedHintIndex === index && (
+                      <p style={{ marginTop: '0.5rem', color: '#bbb', padding: '0.5rem', background: '#1e1e2e', borderRadius: '4px' }}>
+                        {hint}
+                      </p>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </ContentArea>
       </LeftPanel>
